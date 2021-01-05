@@ -5,7 +5,7 @@
   <bridge name='tt0' stp='on' delay='0'/>
   <mtu size='1500'/>
   <mac address='52:54:00:e0:8d:fe'/>
-  <domain name='redhat.com'/>
+  <domain name='redhat.com' localOnly='yes'/>
   <dns enable='yes'>
     <host ip='192.168.126.10'>
       <hostname>api.test-cluster.redhat.com</hostname>
