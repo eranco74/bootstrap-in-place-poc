@@ -14,7 +14,7 @@ generate:
 embed: download-iso
 	sudo podman run --pull=always --privileged --rm -v /dev:/dev -v /run/udev:/run/udev -v .:/data -w /data quay.io/coreos/coreos-installer:release iso ignition embed /data/installer-image.iso -f --ignition-file /data/mydir/bootstrap-in-place-for-live-iso.ign -o /data/installer-SNO-image.iso
 	mkdir -p /tmp/images
-	mv installer-SNO-image.iso /tmp/images/installer-SNO-image.iso
+	mv -f installer-SNO-image.iso /tmp/images/installer-SNO-image.iso
 
 download-iso:
 	./hack/download_live_iso.sh &
