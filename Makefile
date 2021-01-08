@@ -1,6 +1,6 @@
 INSTALLER_BINDIR = ~/go/src/github.com/openshift/installer/bin
 
-clean: destroy
+clean: destroy network-destroy
 	rm -rf mydir
 
 destroy:
@@ -24,6 +24,9 @@ start-iso:
 
 network:
 	./hack/virt-create-net.sh
+
+network-destroy:
+	./hack/virt-destroy-net.sh || true
 
 ssh:
 	ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no core@192.168.126.10
