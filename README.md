@@ -1,15 +1,15 @@
 See https://github.com/openshift/enhancements/pull/565
 
-First, build the modified installer:
+Check out the `bootstrap-in-place` installer branch:
 
 ```
 $> cd ~/go/src/github.com/openshift/installer
 $> git remote add -f eranco74 git@github.com:eranco74/installer.git
-$> git checkout -b bootstrap-in-place-poc eranco74/bootstrap-in-place-poc
-$> hack/build.sh
+$> git checkout -b bootstrap-in-place eranco74/bootstrap-in-place
 ```
 
-- Copy ./install-config.yaml.tmpl` to ./install-config.yaml` and add your ssh key and pull secret to it
+- Patch and build the installer - `make installer`
+- Copy `./install-config.yaml.tmpl` to ./install-config.yaml` and add your ssh key and pull secret to it
 - Generate ignition - `make generate`
 - Set up networking - `make network` (provides DNS for `Cluster name: test-cluster, Base DNS: redhat.com`)
 - Download rhcos image - `make embed` (download RHCOS liveCD and embed the bootstrap Ignition)

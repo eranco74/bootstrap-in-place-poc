@@ -7,7 +7,9 @@
 
 COREOS_INSTALLER_ARGS = /dev/vda
 RELEASE_IMAGE = "quay.io/eranco74/ocp-release:bootstrap-in-place"
-INSTALLER_BINDIR = ~/go/src/github.com/openshift/installer/bin
+INSTALLER_SRCDIR = ~/go/src/github.com/openshift/installer
+
+INSTALLER_BINDIR = $(INSTALLER_SRCDIR)/bin
 
 clean: destroy
 	rm -rf mydir
@@ -30,6 +32,11 @@ download-iso:
 
 start-iso:
 	./hack/virt-install-sno-iso-ign.sh
+
+patch:
+	cd $(INSTALLER_SRCDIR) && git am -3 $(CURDIR)/installer-patches/*.patch
+installer: patch
+	cd $(INSTALLER_SRCDIR) && hack/build.sh
 
 network:
 	./hack/virt-create-net.sh
