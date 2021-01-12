@@ -20,7 +20,7 @@ destroy:
 generate:
 	mkdir -p mydir
 	cp ./install-config.yaml mydir/
-	OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE=true OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE_COREOS_INSTALLER_ARGS="$(COREOS_INSTALLER_ARGS)" OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE="$(RELEASE_IMAGE)" $(INSTALLER_BINDIR)/openshift-install create ignition-configs --dir=mydir
+	OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE=true OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE_COREOS_INSTALLER_ARGS="$(COREOS_INSTALLER_ARGS)" OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE="$(RELEASE_IMAGE)" $(INSTALLER_BINDIR)/openshift-install create single-node-ignition-config --dir=mydir
 
 embed: download-iso
 	sudo podman run --pull=always --privileged --rm -v /dev:/dev -v /run/udev:/run/udev -v .:/data -w /data quay.io/coreos/coreos-installer:release iso ignition embed /data/installer-image.iso -f --ignition-file /data/mydir/bootstrap-in-place-for-live-iso.ign -o /data/installer-SNO-image.iso
