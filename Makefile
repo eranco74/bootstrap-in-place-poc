@@ -1,8 +1,8 @@
 
-RELEASE_IMAGE := $(or $(RELEASE_IMAGE), "quay.io/eranco74/ocp-release:bootstrap-in-place")
+RELEASE_IMAGE := $(or $(RELEASE_IMAGE), "quay.io/eranco74/ocp-release:bootstrap-in-place-poc")
 
 clean: destroy
-	rm -rf mydir
+	rm -rf mydir bin
 
 destroy:
 	./hack/virt-delete-sno.sh || true
@@ -10,7 +10,7 @@ destroy:
 generate: bin/openshift-install
 	mkdir -p mydir
 	cp ./install-config.yaml mydir/
-	OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE=true OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE_COREOS_INSTALLER_ARGS=/dev/vda OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=$(RELEASE_IMAGE) ./bin/openshift-install create ignition-configs --dir=mydir
+	OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE=true OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE_COREOS_INSTALLER_ARGS=/dev/vda OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=$(RELEASE_IMAGE) ./bin/openshift-install create single-node-ignition-config --dir=mydir
 
 embed: download-iso
 	sudo podman run --pull=always --privileged --rm -v /dev:/dev -v /run/udev:/run/udev -v .:/data -w /data quay.io/coreos/coreos-installer:release iso ignition embed /data/installer-image.iso -f --ignition-file /data/mydir/bootstrap-in-place-for-live-iso.ign -o /data/installer-SNO-image.iso
