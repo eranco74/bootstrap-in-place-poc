@@ -6,10 +6,9 @@
 # will cause coreos-installer not to be executed at the end of bootkube
 
 COREOS_INSTALLER_ARGS = /dev/vda
-RELEASE_IMAGE = "quay.io/eranco74/ocp-release:bootstrap-in-place"
 INSTALLER_SRCDIR = ~/go/src/github.com/openshift/installer
-
 INSTALLER_BINDIR = $(INSTALLER_SRCDIR)/bin
+RELEASE_IMAGE := $(or $(RELEASE_IMAGE), "quay.io/eranco74/ocp-release:bootstrap-in-place-poc")
 
 clean: destroy
 	rm -rf mydir
@@ -35,6 +34,7 @@ start-iso:
 
 patch:
 	cd $(INSTALLER_SRCDIR) && git am -3 $(CURDIR)/installer-patches/*.patch
+
 installer: patch
 	cd $(INSTALLER_SRCDIR) && hack/build.sh
 

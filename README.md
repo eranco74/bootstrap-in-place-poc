@@ -15,3 +15,8 @@ $> git checkout -b bootstrap-in-place eranco74/bootstrap-in-place
 - Download rhcos image - `make embed` (download RHCOS liveCD and embed the bootstrap Ignition)
 - Spin up a VM with the the liveCD - `make start-iso`
 - Monitor the progress using `make ssh` and `journalctl -f -u bootkube.service` or `kubectl --kubeconfig ./mydir/auth/kubeconfig get clusterversion`
+
+Default release image is quay.io/eranco74/ocp-release:bootstrap-in-place, you can override it using RELEASE_IMAGE env var
+make generate will execute the openshift-installer with OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE_COREOS_INSTALLER_ARGS=/dev/vda
+if you’re running the installatin on a BM environment, it should be updated.
+You can override using the COREOS_INSTALLER_ARGS env var
