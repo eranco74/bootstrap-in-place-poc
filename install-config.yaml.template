@@ -27,5 +27,8 @@ networking:
 platform:
   none: {}
 publish: External
-pullSecret: 
-sshKey: 
+pullSecret: |
+        YOUR_PULL_SECRET
+sshKey: |
+        YOUR_SSH_KEY
+

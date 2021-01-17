@@ -1,6 +1,10 @@
-install-config.yaml
-installer-image.iso
-mydir/
-nohup.out
-*~
-
+/install-config.yaml
+/*.iso
+/net.xml
+/gathered/
+/sno-workdir
+/nohup.out
+/installer/
+/log-bundle*
+/.openshift_install.log
+/.openshift_install_state.json
