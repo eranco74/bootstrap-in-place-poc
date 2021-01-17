@@ -1,0 +1,41 @@
+From 36370d4e50f3a53ea746358e4915105f66e08348 Mon Sep 17 00:00:00 2001
+From: Eran Cohen <eran@stratoscale.com>
+Date: Sun, 3 Jan 2021 18:48:38 +0200
+Subject: [PATCH 2/2] Added patch_ingress to bootstrap-in-place-post-reboot.sh
+ THIS IS A TEMP HACK ALLOWING SINGLE NODE INSTALLATION See:
+ https://issues.redhat.com/browse/NE-449
+
+---
+ .../bootstrap-in-place-post-reboot.sh                  | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/data/data/bootstrap/bootstrap-in-place/opt/openshift/bootstrap-in-place/bootstrap-in-place-post-reboot.sh b/data/data/bootstrap/bootstrap-in-place/opt/openshift/bootstrap-in-place/bootstrap-in-place-post-reboot.sh
+index 407164a47..a95285d40 100755
+--- a/data/data/bootstrap/bootstrap-in-place/opt/openshift/bootstrap-in-place/bootstrap-in-place-post-reboot.sh
++++ b/data/data/bootstrap/bootstrap-in-place/opt/openshift/bootstrap-in-place/bootstrap-in-place-post-reboot.sh
+@@ -46,6 +46,15 @@ function approve_csr {
+   fi
+ }
+ 
++function patch_ingress {
++  echo "patch ingress operator to run a single router pod"
++  while ! oc patch -n openshift-ingress-operator ingresscontroller/default --patch '{"spec":{"replicas": 1}}' --type=merge;
++  do
++    echo "Still waiting to patch ingress ..."
++    sleep 3
++  done
++}
++
+ function wait_for_cvo {
+   echo "Waiting for cvo"
+   until [ "$(oc get clusterversion -o jsonpath='{.items[0].status.conditions[?(@.type=="Available")].status}')" == "True" ];
+@@ -64,5 +73,6 @@ function clean {
+ 
+ wait_for_api
+ approve_csr
++patch_ingress
+ wait_for_cvo
+ clean
+-- 
+2.24.1
+
