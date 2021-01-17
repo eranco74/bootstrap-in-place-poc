@@ -55,6 +55,10 @@ SSH_HOST = core@$(HOST_IP)
 # if some of the files in the folder already exist
 .PHONY: $(INSTALLER_WORKDIR)
 
+# $(SSH_KEY_PRIV_PATH) is also PHONY because git won't track the file permissions required
+# for it to be accepted by SSH, we have to always chmod it
+.PHONY: $(SSH_KEY_PRIV_PATH)
+
 .SILENT: destroy-libvirt
 
 clean: destroy-libvirt
@@ -145,7 +149,10 @@ start-iso: $(INSTALLER_ISO_PATH_SNO) network
 	NET_NAME=$(NET_NAME) \
 	$(SNO_DIR)/virt-install-sno-iso-ign.sh
 
-ssh:
+$(SSH_KEY_PRIV_PATH):
+	chmod 400 $@
+
+ssh: $(SSH_KEY_PRIV_PATH)
 	ssh $(SSH_FLAGS) $(SSH_HOST)
 
 gather:
