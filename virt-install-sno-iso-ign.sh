@@ -4,8 +4,21 @@
 # $ mv rhcos-46.82.202007051540-0-qemu.x86_64.qcow2.gz /tmp
 # $ sudo gunzip /tmp/rhcos-46.82.202007051540-0-qemu.x86_64.qcow2.gz
 
-RHCOS_ISO="/tmp/images/installer-SNO-image.iso"
-VM_NAME="sno-test"
+if [ -z ${RHCOS_ISO+x} ]; then
+	echo "Please set RHCOS_ISO"
+	exit 1
+fi
+
+if [ -z ${VM_NAME+x} ]; then
+	echo "Please set the VM_NAME"
+	exit 1
+fi
+
+if [ -z ${NET_NAME+x} ]; then
+	echo "Please set the NET_NAME"
+	exit 1
+fi
+
 OS_VARIANT="rhel8.1"
 RAM_MB="16384"
 DISK_GB="30"
@@ -18,7 +31,7 @@ nohup virt-install \
     --vcpus "${CPU_CORE}" \
     --os-variant="${OS_VARIANT}" \
     --import \
-    --network=network:test-net,mac=52:54:00:ee:42:e1 \
+    --network=network:${NET_NAME},mac=52:54:00:ee:42:e1 \
     --graphics=none \
     --events on_reboot=restart \
     --cdrom "${RHCOS_ISO}" \
