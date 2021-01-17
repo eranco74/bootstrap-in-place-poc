@@ -12,6 +12,7 @@ endif
 INSTALLATION_DISK ?= /dev/vda
 SSH_KEY_PUB ?= $(shell cat $(SNO_DIR)/ssh/key.pub)
 SSH_KEY_PRIV_PATH ?= $(SNO_DIR)/ssh/key
+RELEASE_IMAGE ?= quay.io/eranco74/ocp-release:bootstrap-in-place
 
 ########################
 
@@ -33,8 +34,6 @@ INSTALL_CONFIG_IN_WORKDIR = $(INSTALLER_WORKDIR)/install-config.yaml
 
 NET_CONFIG_TEMPLATE = $(SNO_DIR)/net.xml.template
 NET_CONFIG = $(SNO_DIR)/net.xml
-
-OPENSHIFT_RELEASE_IMAGE = quay.io/eranco74/ocp-release:bootstrap-in-place
 
 NET_NAME = test-net
 VM_NAME = sno-test
@@ -117,7 +116,7 @@ $(INSTALLER_ISO_PATH):
 $(BIP_LIVE_ISO_IGNITION): $(INSTALL_CONFIG_IN_WORKDIR) $(INSTALLER_BIN)
 	OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE=true \
 	OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE_COREOS_INSTALLER_ARGS=$(INSTALLATION_DISK) \
-	OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE="$(OPENSHIFT_RELEASE_IMAGE)" \
+	OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE="$(RELEASE_IMAGE)" \
 	$(INSTALLER_BIN) create single-node-ignition-config --dir=$(INSTALLER_WORKDIR)
 
 # Embed the ignition file in the CoreOS ISO
