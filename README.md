@@ -20,3 +20,8 @@ Default release image is quay.io/eranco74/ocp-release:bootstrap-in-place, you ca
 make generate will execute the openshift-installer with OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE_COREOS_INSTALLER_ARGS=/dev/vda
 if you’re running the installatin on a BM environment, it should be updated.
 You can override using the COREOS_INSTALLER_ARGS env var
+
+This POC currently mitigating some gaps by patching etcd, Authentication and Ingress, allowing single node installation.
+See installer-patches/
+This won't be required after [single-node production deployment](https://github.com/openshift/enhancements/pull/560) is implemented.
+
