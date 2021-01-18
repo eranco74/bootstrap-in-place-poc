@@ -1,5 +1,4 @@
-SNO_DIR=.
-
+SNO_DIR = .
 ########################
 # User variables
 ########################
@@ -10,8 +9,6 @@ ifndef PULL_SECRET
 endif
 
 INSTALLATION_DISK ?= /dev/vda
-SSH_KEY_PUB ?= $(shell cat $(SNO_DIR)/ssh/key.pub)
-SSH_KEY_PRIV_PATH ?= $(SNO_DIR)/ssh/key
 RELEASE_IMAGE ?= quay.io/eranco74/ocp-release:bootstrap-in-place
 
 ########################
@@ -39,12 +36,31 @@ NET_NAME = test-net
 VM_NAME = sno-test
 VOL_NAME = $(VM_NAME).qcow2
 
+SSH_KEY_DIR = $(SNO_DIR)/ssh-key
+SSH_KEY_PUB_PATH = $(SSH_KEY_DIR)/key.pub
+SSH_KEY_PRIV_PATH = $(SSH_KEY_DIR)/key
+
 SSH_FLAGS = -o IdentityFile=$(SSH_KEY_PRIV_PATH) \
  			-o UserKnownHostsFile=/dev/null \
  			-o StrictHostKeyChecking=no
 
 HOST_IP = 192.168.126.10
 SSH_HOST = core@$(HOST_IP)
+
+define generate-keypair =
+endef
+
+$(SSH_KEY_DIR):
+	@echo Creating SSH key dir
+	mkdir $@
+
+$(SSH_KEY_PRIV_PATH): $(SSH_KEY_DIR)
+	@echo "No private key $@ found, generating a private-public pair"
+	# -N "" means no password
+	ssh-keygen -f $@ -N ""
+	chmod 400 $@
+
+$(SSH_KEY_PUB_PATH): $(SSH_KEY_PRIV_PATH)
 
 .PHONY: gather checkenv clean destroy-libvirt start-iso network ssh patched_installer
 
@@ -54,10 +70,6 @@ SSH_HOST = core@$(HOST_IP)
 # $(INSTALLER_WORKDIR) is also PHONY because "installer create single-node-ignition-config" doesn't regenerate
 # if some of the files in the folder already exist
 .PHONY: $(INSTALLER_WORKDIR)
-
-# $(SSH_KEY_PRIV_PATH) is also PHONY because git won't track the file permissions required
-# for it to be accepted by SSH, we have to always chmod it
-.PHONY: $(SSH_KEY_PRIV_PATH)
 
 .SILENT: destroy-libvirt
 
@@ -88,9 +100,9 @@ destroy-libvirt:
 	$(SNO_DIR)/virt-delete-sno.sh || true
 
 # Render the install config from the template with the correct pull secret and SSH key
-$(INSTALL_CONFIG): $(INSTALL_CONFIG_TEMPLATE) checkenv
+$(INSTALL_CONFIG): $(INSTALL_CONFIG_TEMPLATE) checkenv $(SSH_KEY_PUB_PATH)
 	sed -e 's/YOUR_PULL_SECRET/$(PULL_SECRET)/' \
-	    -e 's|YOUR_SSH_KEY|$(SSH_KEY_PUB)|' \
+	    -e 's|YOUR_SSH_KEY|$(shell cat $(SSH_KEY_PUB_PATH))|' \
 	    $(INSTALL_CONFIG_TEMPLATE) > $(INSTALL_CONFIG)
 
 # Render the libvirt net config file with the network name and host IP
@@ -149,13 +161,13 @@ start-iso: $(INSTALLER_ISO_PATH_SNO) network
 	NET_NAME=$(NET_NAME) \
 	$(SNO_DIR)/virt-install-sno-iso-ign.sh
 
-$(SSH_KEY_PRIV_PATH):
-	chmod 400 $@
-
 ssh: $(SSH_KEY_PRIV_PATH)
 	ssh $(SSH_FLAGS) $(SSH_HOST)
 
 gather:
+	@echo Gathering logs...
+	@echo If this fails, try killing running SSH agent instances. Installer will prefer those \
+over your explicitly provided key file
 	$(INSTALLER_BIN) gather bootstrap \
 	--bootstrap $(HOST_IP) \
 	--master $(HOST_IP) \
