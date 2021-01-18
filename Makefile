@@ -20,7 +20,8 @@ INSTALLER_BIN = $(INSTALLER_REPO)/bin/openshift-install
 INSTALLER_PATCHES = $(SNO_DIR)/installer-patches
 
 INSTALLER_WORKDIR = sno-workdir
-BIP_LIVE_ISO_IGNITION = $(INSTALLER_WORKDIR)/bootstrap-in-place-for-live-iso.ign
+LIVE_ISO_IGNITION_NAME = bootstrap-in-place-for-live-iso.ign
+BIP_LIVE_ISO_IGNITION = $(SNO_DIR)/$(LIVE_ISO_IGNITION_NAME)
 
 LIBVIRT_ISO_PATH = /var/lib/libvirt/images
 INSTALLER_ISO_PATH = $(SNO_DIR)/installer-image.iso
@@ -48,9 +49,6 @@ SSH_FLAGS = -o IdentityFile=$(SSH_KEY_PRIV_PATH) \
 
 HOST_IP = 192.168.126.10
 SSH_HOST = core@$(HOST_IP)
-
-define generate-keypair =
-endef
 
 $(SSH_KEY_DIR):
 	@echo Creating SSH key dir
@@ -132,29 +130,22 @@ $(INSTALLER_ISO_PATH):
 
 # Use the openshift-installer to generate BiP Live ISO ignition file
 $(BIP_LIVE_ISO_IGNITION): $(INSTALL_CONFIG_IN_WORKDIR) $(INSTALLER_BIN)
-	OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE=true \
-	OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE_COREOS_INSTALLER_ARGS=$(INSTALLATION_DISK) \
-	OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE="$(RELEASE_IMAGE)" \
-	$(INSTALLER_BIN) create single-node-ignition-config --dir=$(INSTALLER_WORKDIR)
+	INSTALLATION_DISK=$(INSTALLATION_DISK) \
+	RELEASE_IMAGE=$(RELEASE_IMAGE) \
+	INSTALLER_BIN=$(INSTALLER_BIN) \
+	INSTALLER_WORKDIR=$(INSTALLER_WORKDIR) \
+	$(SNO_DIR)/generate.sh 
+	cp $(INSTALLER_WORKDIR)/$(LIVE_ISO_IGNITION_NAME) $@
 
 # Embed the ignition file in the CoreOS ISO
 $(INSTALLER_ISO_PATH_SNO): $(BIP_LIVE_ISO_IGNITION) $(INSTALLER_ISO_PATH)
 	# openshift-install will not overwrite existing ISOs, so we delete it beforehand
 	rm -f $@
 
-	sudo podman run \
-		--pull=always \
-		--privileged \
-		--rm \
-		-v /dev:/dev \
-		-v /run/udev:/run/udev \
-		-v $(SNO_DIR):/data \
-		--workdir /data \
-		quay.io/coreos/coreos-installer:release \
-		iso ignition embed /data/$(INSTALLER_ISO_PATH) \
-		--force \
-		--ignition-file /data/$(BIP_LIVE_ISO_IGNITION) \
-		--output /data/$@
+	ISO_PATH=$(INSTALLER_ISO_PATH) \
+	IGNITION_PATH=$(BIP_LIVE_ISO_IGNITION) \
+	OUTPUT_PATH=$@ \
+	$(SNO_DIR)/embed.sh 
 
 $(INSTALLER_ISO_PATH_SNO_IN_LIBVIRT): $(INSTALLER_ISO_PATH_SNO)
 	sudo cp $< $@
