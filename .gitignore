@@ -9,3 +9,4 @@
 /.openshift_install.log
 /.openshift_install_state.json
 /ssh-key/
+/bootstrap-in-place-for-live-iso.ign

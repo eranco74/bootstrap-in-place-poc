@@ -1,6 +1,6 @@
 See https://github.com/openshift/enhancements/pull/565
 
-# How to run
+# How to run - automatic makefile
 - Set PULL_SECRET environment variable to your pull secret
 - `make start-iso` - Spins up a VM with the the liveCD. This will automatically perform the following actions:
 	- Clone the installer repo with the boostrap-in-place branch
@@ -13,6 +13,31 @@ See https://github.com/openshift/enhancements/pull/565
 	- Create a libvirt network & VM
 	- Boot the VM with that ISO
 - You can now monitor the progress using `make ssh` and `journalctl -f -u bootkube.service` or `kubectl --kubeconfig ./sno-workdir/auth/kubeconfig get clusterversion`
+
+# How to run - manual mode
+- Create a workdir for the installer - `mkdir sno-workdir`
+- Create an `install-config.yaml` in the sno-workdir. An example file can be found in `./install-config.yaml.template`
+- Download the ISO to the workdir `./download_live_iso.sh sno-workdir/base.iso`
+- Get an installer binary using `oc adm extract` or `./hack/build.sh`
+- Generate an ignition file using the installer with `./generate.sh`. Invocation example:
+```bash
+INSTALLATION_DISK=/dev/sda \
+RELEASE_IMAGE=quay.io/eranco74/ocp-release:bootstrap-in-place \
+INSTALLER_BIN=./openshift-installer \
+INSTALLER_WORKDIR=./sno-workdir \
+./generate.sh
+```
+- Embed the ignition file inside the ISO using `./embed.sh`. Invocation example:
+```bash
+ISO_PATH=./sno-workdir/base.iso \
+IGNITION_PATH=./sno-workdir/bootstrap-in-place-for-live-iso.ign \
+OUTPUT_PATH=./sno-workdir/embedded.iso \
+./embed.sh
+```
+
+You can now use `sno-workdir/embedded.iso` to install a single node cluster. The kubeconfig file can be found in `./sno-workdir/auth/kubeconfig`
+
+# Other notes
 
 Default release image is quay.io/eranco74/ocp-release:bootstrap-in-place, you can override it using RELEASE_IMAGE env var
 make will execute the openshift-installer with OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE_COREOS_INSTALLER_ARGS=/dev/vda
