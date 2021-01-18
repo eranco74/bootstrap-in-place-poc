@@ -22,8 +22,10 @@ INSTALLER_PATCHES = $(SNO_DIR)/installer-patches
 INSTALLER_WORKDIR = sno-workdir
 BIP_LIVE_ISO_IGNITION = $(INSTALLER_WORKDIR)/bootstrap-in-place-for-live-iso.ign
 
+LIBVIRT_ISO_PATH = /var/lib/libvirt/images
 INSTALLER_ISO_PATH = $(SNO_DIR)/installer-image.iso
 INSTALLER_ISO_PATH_SNO = $(SNO_DIR)/installer-SNO-image.iso
+INSTALLER_ISO_PATH_SNO_IN_LIBVIRT = $(LIBVIRT_ISO_PATH)/installer-SNO-image.iso
 
 INSTALL_CONFIG_TEMPLATE = $(SNO_DIR)/install-config.yaml.template
 INSTALL_CONFIG = $(SNO_DIR)/install-config.yaml
@@ -146,7 +148,7 @@ $(INSTALLER_ISO_PATH_SNO): $(BIP_LIVE_ISO_IGNITION) $(INSTALLER_ISO_PATH)
 		--rm \
 		-v /dev:/dev \
 		-v /run/udev:/run/udev \
-		-v .:/data \
+		-v $(SNO_DIR):/data \
 		--workdir /data \
 		quay.io/coreos/coreos-installer:release \
 		iso ignition embed /data/$(INSTALLER_ISO_PATH) \
@@ -154,9 +156,13 @@ $(INSTALLER_ISO_PATH_SNO): $(BIP_LIVE_ISO_IGNITION) $(INSTALLER_ISO_PATH)
 		--ignition-file /data/$(BIP_LIVE_ISO_IGNITION) \
 		--output /data/$@
 
+$(INSTALLER_ISO_PATH_SNO_IN_LIBVIRT): $(INSTALLER_ISO_PATH_SNO)
+	sudo cp $< $@
+	sudo chown qemu:qemu $@
+
 # Destroy previously created VMs/Networks and create a VM/Network with an ISO containing the BiP embedded ignition file
-start-iso: $(INSTALLER_ISO_PATH_SNO) network
-	RHCOS_ISO=$(INSTALLER_ISO_PATH_SNO) \
+start-iso: $(INSTALLER_ISO_PATH_SNO_IN_LIBVIRT) network
+	RHCOS_ISO=$(INSTALLER_ISO_PATH_SNO_IN_LIBVIRT) \
 	VM_NAME=$(VM_NAME) \
 	NET_NAME=$(NET_NAME) \
 	$(SNO_DIR)/virt-install-sno-iso-ign.sh
