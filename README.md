@@ -3,9 +3,7 @@ See https://github.com/openshift/enhancements/pull/565
 # How to run - automatic makefile
 - Set PULL_SECRET environment variable to your pull secret
 - `make start-iso` - Spins up a VM with the the liveCD. This will automatically perform the following actions:
-	- Clone the installer repo with the boostrap-in-place branch
-	- Apply the patches in the patches directory to that repo
-	- Build the openshift installer
+	- Extract the openshift installer from the release image
 	- Generate the install-config.yaml 
 	- Execute the openshift-installer `create single-node-ignition-config` command to generate the bootstrap-in-place-for-live-iso.ign.
 	- Download the RHCOS live ISO
@@ -18,12 +16,12 @@ See https://github.com/openshift/enhancements/pull/565
 - Create a workdir for the installer - `mkdir sno-workdir`
 - Create an `install-config.yaml` in the sno-workdir. An example file can be found in `./install-config.yaml.template`
 - Download the ISO to the workdir `./download_live_iso.sh sno-workdir/base.iso`
-- Build the installer binary using `./hack/build.sh`
+- Get an installer binary using `oc adm extract` or `./hack/build.sh`
 - Generate an ignition file using the installer with `./generate.sh`. Invocation example:
 ```bash
 INSTALLATION_DISK=/dev/sda \
-RELEASE_IMAGE=quay.io/eranco74/ocp-release:bootstrap-in-place \
-INSTALLER_BIN=./openshift-installer \
+RELEASE_IMAGE=registry.svc.ci.openshift.org/ci-ln-cvxm9pb/release:latest \
+INSTALLER_BIN=./bin/openshift-installer \
 INSTALLER_WORKDIR=./sno-workdir \
 ./generate.sh
 ```
@@ -39,10 +37,6 @@ You can now use `sno-workdir/embedded.iso` to install a single node cluster. The
 
 # Other notes
 
-Default release image is quay.io/eranco74/ocp-release:bootstrap-in-place, you can override it using RELEASE_IMAGE env var
+Default release image is registry.svc.ci.openshift.org/ci-ln-cvxm9pb/release:latest, you can override it using RELEASE_IMAGE env var
 make will execute the openshift-installer with OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE_COREOS_INSTALLER_ARGS=/dev/vda
 if you’re running the installatin on a BM environment, it should be updated.
-
-This POC currently mitigating some gaps by patching etcd, Authentication and Ingress, allowing single node installation.
-See installer-patches/
-This won't be required after [single-node production deployment](https://github.com/openshift/enhancements/pull/560) is implemented.
