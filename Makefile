@@ -9,17 +9,12 @@ ifndef PULL_SECRET
 endif
 
 INSTALLATION_DISK ?= /dev/vda
-RELEASE_IMAGE ?= quay.io/eranco74/ocp-release:bootstrap-in-place
+RELEASE_IMAGE ?= registry.svc.ci.openshift.org/ci-ln-cvxm9pb/release:latest
 
 ########################
 
-INSTALLER_REPO_REMOTE = https://github.com/eranco74/installer
-INSTALLER_REPO_BRANCH = bootstrap-in-place
-INSTALLER_REPO = $(SNO_DIR)/installer
-INSTALLER_BIN = $(INSTALLER_REPO)/bin/openshift-install
-INSTALLER_PATCHES = $(SNO_DIR)/installer-patches
-
 INSTALLER_WORKDIR = sno-workdir
+INSTALLER_BIN = bin/openshift-install
 LIVE_ISO_IGNITION_NAME = bootstrap-in-place-for-live-iso.ign
 BIP_LIVE_ISO_IGNITION = $(INSTALLER_WORKDIR)/$(LIVE_ISO_IGNITION_NAME)
 
@@ -62,7 +57,7 @@ $(SSH_KEY_PRIV_PATH): $(SSH_KEY_DIR)
 
 $(SSH_KEY_PUB_PATH): $(SSH_KEY_PRIV_PATH)
 
-.PHONY: gather checkenv clean destroy-libvirt start-iso network ssh patched_installer
+.PHONY: gather checkenv clean destroy-libvirt start-iso network ssh
 
 # $(INSTALL_CONFIG) is also PHONY to force the makefile to regenerate it with new env vars
 .PHONY: $(INSTALL_CONFIG)
@@ -75,22 +70,6 @@ $(SSH_KEY_PUB_PATH): $(SSH_KEY_PRIV_PATH)
 
 clean: destroy-libvirt
 	rm -rf $(INSTALLER_WORKDIR)
-
-$(INSTALLER_REPO): 
-	git clone $(INSTALLER_REPO_REMOTE) $@ -b $(INSTALLER_REPO_BRANCH)
-
-patches = $(wildcard $(INSTALLER_PATCHES)/*.patch)
-patched_installer: $(INSTALLER_REPO) $(patches)
-	git -C $(INSTALLER_REPO) stash
-	git -C $(INSTALLER_REPO) reset --hard origin/$(INSTALLER_REPO_BRANCH)
-	for patch in $(patches); do \
-		echo Patching $$patch ; \
-		cat $$patch | git -C $(INSTALLER_REPO) am -3 ; \
-	done
-
-$(INSTALLER_BIN): patched_installer
-	cd $(INSTALLER_REPO) && \
-	./hack/build.sh
 
 destroy-libvirt:
 	echo "Destroying previous libvirt resources"
@@ -127,6 +106,10 @@ $(INSTALL_CONFIG_IN_WORKDIR): $(INSTALLER_WORKDIR) $(INSTALL_CONFIG)
 # Original CoreOS ISO
 $(INSTALLER_ISO_PATH): 
 	$(SNO_DIR)/download_live_iso.sh $@
+
+# Get the openshift-installer from the release image
+$(INSTALLER_BIN):
+	oc adm release extract --command=openshift-install --to ./bin $(RELEASE_IMAGE)
 
 # Use the openshift-installer to generate BiP Live ISO ignition file
 $(BIP_LIVE_ISO_IGNITION): $(INSTALL_CONFIG_IN_WORKDIR) $(INSTALLER_BIN)

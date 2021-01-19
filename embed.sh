@@ -17,7 +17,7 @@ if [ -z ${OUTPUT_PATH+x} ]; then
 	exit 1
 fi
 
-sudo podman run \
+podman run \
     --pull=always \
     --privileged \
     --rm \
