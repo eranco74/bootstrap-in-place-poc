@@ -18,7 +18,7 @@ See https://github.com/openshift/enhancements/pull/565
 - Create a workdir for the installer - `mkdir sno-workdir`
 - Create an `install-config.yaml` in the sno-workdir. An example file can be found in `./install-config.yaml.template`
 - Download the ISO to the workdir `./download_live_iso.sh sno-workdir/base.iso`
-- Get an installer binary using `oc adm extract` or `./hack/build.sh`
+- Build the installer binary using `./hack/build.sh`
 - Generate an ignition file using the installer with `./generate.sh`. Invocation example:
 ```bash
 INSTALLATION_DISK=/dev/sda \
