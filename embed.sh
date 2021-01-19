@@ -17,27 +17,19 @@ if [ -z ${OUTPUT_PATH+x} ]; then
 	exit 1
 fi
 
-if [[ $(dirname $ISO_PATH) != $(dirname $IGNITION_PATH) ]]; then
-    echo $ISO_PATH and $IGNITION_PATH must be in the same directory
-    exit 1
-fi
-
-if [[ $(dirname $IGNITION_PATH) != $(dirname $OUTPUT_PATH) ]]; then
-    echo $IGNITION_PATH and $OUTPUT_PATH must be in the same directory
-    exit 1
-fi
-
 sudo podman run \
     --pull=always \
     --privileged \
     --rm \
     -v /dev:/dev \
     -v /run/udev:/run/udev \
-    -v $(realpath $(dirname $ISO_PATH)):/data \
+    -v $(realpath $(dirname $ISO_PATH)):/data:Z \
+    -v $(realpath $(dirname $IGNITION_PATH)):/ignition_data:Z \
+    -v $(realpath $(dirname $OUTPUT_PATH)):/output_data:Z \
     --workdir /data \
     quay.io/coreos/coreos-installer:release \
     iso ignition embed /data/$(basename $ISO_PATH) \
     --force \
-    --ignition-file /data/$(basename $IGNITION_PATH) \
-    --output /data/$(basename $OUTPUT_PATH)
+    --ignition-file /ignition_data/$(basename $IGNITION_PATH) \
+    --output /output_data/$(basename $OUTPUT_PATH)
 
