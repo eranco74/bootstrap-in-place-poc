@@ -20,7 +20,7 @@ See https://github.com/openshift/enhancements/pull/565
 - Generate an ignition file using the installer with `./generate.sh`. Invocation example:
 ```bash
 INSTALLATION_DISK=/dev/sda \
-RELEASE_IMAGE=registry.svc.ci.openshift.org/ci-ln-cvxm9pb/release:latest \
+RELEASE_IMAGE=registry.svc.ci.openshift.org/sno-dev/openshift-bip:0.2.0 \
 INSTALLER_BIN=./bin/openshift-installer \
 INSTALLER_WORKDIR=./sno-workdir \
 ./generate.sh
@@ -37,7 +37,7 @@ You can now use `sno-workdir/embedded.iso` to install a single node cluster. The
 
 # Other notes
 
-* Default release image is registry.svc.ci.openshift.org/ci-ln-cvxm9pb/release:latest, you can override it using RELEASE_IMAGE env var.
+* Default release image is registry.svc.ci.openshift.org/sno-dev/openshift-bip:0.2.0, you can override it using RELEASE_IMAGE env var.
 * **Make sure your pull secret contain auth for registry.svc.ci.openshift.org**
 * make will execute the openshift-installer with OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE_COREOS_INSTALLER_ARGS=/dev/vda
 * if you’re running the installation on a BM environment, it should be updated.
