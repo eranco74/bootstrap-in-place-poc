@@ -38,6 +38,5 @@ You can now use `sno-workdir/embedded.iso` to install a single node cluster. The
 # Other notes
 
 * Default release image is registry.svc.ci.openshift.org/sno-dev/openshift-bip:0.2.0, you can override it using RELEASE_IMAGE env var.
-* **Make sure your pull secret contain auth for registry.svc.ci.openshift.org**
 * make will execute the openshift-installer with OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE_COREOS_INSTALLER_ARGS=/dev/vda
 * if you’re running the installation on a BM environment, it should be updated.
