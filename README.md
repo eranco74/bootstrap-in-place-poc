@@ -6,6 +6,7 @@ See https://github.com/openshift/enhancements/pull/565
 	- Extract the openshift installer from the release image
 	- Generate the install-config.yaml 
 	- Execute the openshift-installer `create single-node-ignition-config` command to generate the bootstrap-in-place-for-live-iso.ign.
+	- Add the complete-installation.service to bootstrap-in-place-for-live-iso.ign.
 	- Download the RHCOS live ISO
 	- Embed the bootstrap-in-place Ignition to the ISO.
 	- Create a libvirt network & VM
@@ -38,5 +39,5 @@ You can now use `sno-workdir/embedded.iso` to install a single node cluster. The
 # Other notes
 
 * Default release image is registry.svc.ci.openshift.org/sno-dev/openshift-bip:0.2.0, you can override it using RELEASE_IMAGE env var.
-* make will execute the openshift-installer with OPENSHIFT_INSTALL_EXPERIMENTAL_BOOTSTRAP_IN_PLACE_COREOS_INSTALLER_ARGS=/dev/vda
+* make will execute the generate.sh script with INSTALLATION_DISK=/dev/vda
 * if you’re running the installation on a BM environment, it should be updated.
