@@ -4,8 +4,8 @@
 # It will complete the installation by executing coreos-installer and reboot the node
 # Make sure to
 
-echo "Waiting for /opt/openshift/master.ign"
-until ls /opt/openshift/master.ign; do
+echo "Waiting for /opt/openshift/.bootkube.done"
+until ls /opt/openshift/.bootkube.done; do
   sleep 5
 done
 # Write image + ignition to disk
