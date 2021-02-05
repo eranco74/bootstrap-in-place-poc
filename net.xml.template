@@ -12,6 +12,7 @@
       <hostname>api-int.test-cluster.redhat.com</hostname>
       <hostname>console-openshift-console.apps.test-cluster.redhat.com</hostname>
       <hostname>oauth-openshift.apps.test-cluster.redhat.com</hostname>
+      <hostname>canary-openshift-ingress-canary.apps.test-cluster.redhat.com</hostname>
     </host>
   </dns>
   <ip family='ipv4' address='192.168.126.1' prefix='24'>
