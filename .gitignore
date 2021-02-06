@@ -11,3 +11,5 @@
 /ssh-key/
 /ignition-overrides/bootstrap-in-place-for-live-iso.ign
 /ignition-overrides/complete-installation.sh
+/.dns_changes_confirmed
+/bin/

@@ -11,6 +11,24 @@
 # on this machine for api.test-cluster.redhat.com to the libvirt
 # configured dnsmasq on 192.168.126.1
 
+# Warn terminal users about dns changes
+if [ -t 1 ]; then
+    function ask_yes_or_no() {
+        read -p "$1 ([y]es or [N]o): "
+        case $(echo $REPLY | tr '[A-Z]' '[a-z]') in
+            y|yes) echo "yes" ;;
+            *)     echo "no" ;;
+        esac
+    }
+
+    echo "This script will make changes to the DNS configuration of your machine, read $0 to learn more"
+
+    if [[ -f .dns_changes_confirmed || "yes" == $(ask_yes_or_no "Are you sure you want to continue?") ]]; then
+        touch .dns_changes_confirmed
+    else
+        exit 1
+    fi
+fi
 
 if [ -z ${NET_XML+x} ]; then
 	echo "Please set NET_XML"
