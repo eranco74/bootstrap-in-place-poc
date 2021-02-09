@@ -8,9 +8,106 @@ echo "Waiting for /opt/openshift/.bootkube.done"
 until ls /opt/openshift/.bootkube.done; do
   sleep 5
 done
+
+REGISTRY=quay.io
+IP=$(hostname -I | cut -d" " -f1)
+DOMAIN=$(hostname -d)
+NAMESERVER=$(grep -v 'fe80::' /etc/resolv.conf | tail -1 | sed 's/nameserver //')
+CLUSTER=test
+COREDNS=$(echo """---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: coredns
+  namespace: openshift-infra
+  creationTimestamp:
+  deletionGracePeriodSeconds: 65
+  labels:
+    app: coredns
+spec:
+  volumes:
+  - name: conf-dir
+    hostPath:
+      path: "/etc/kubernetes"
+  containers:
+  - name: coredns
+    securityContext:
+      privileged: true
+    image: $REGISTRY/openshift/origin-coredns:latest
+    args:
+    - "--conf"
+    - "/etc/coredns/Corefile"
+    resources:
+      requests:
+        cpu: 150m
+        memory: 512Mi
+    volumeMounts:
+    - name: conf-dir
+      mountPath: "/etc/coredns"
+    readinessProbe:
+      httpGet:
+        path: /health
+        port: 18080
+        scheme: HTTP
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+      failureThreshold: 3
+      timeoutSeconds: 10
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 18080
+        scheme: HTTP
+      initialDelaySeconds: 60
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 5
+    terminationMessagePolicy: FallbackToLogsOnError
+    imagePullPolicy: IfNotPresent
+  hostNetwork: true
+  tolerations:
+  - operator: Exists
+  priorityClassName: system-node-critical
+status: {}""" | base64 -w0)
+
+COREFILE=$(echo """. {
+    errors
+    health :18080
+    forward . $NAMESERVER
+    cache 30
+    reload
+    hosts $CLUSTER.$DOMAIN {
+        $IP $HOSTNAME $HOSTNAME.$CLUSTER.$DOMAIN api-int.$CLUSTER.$DOMAIN api.$CLUSTER.$DOMAIN
+        fallthrough
+    }
+    template ANY ANY apps.$CLUSTER.$DOMAIN {
+       answer "{% raw %}{{ .Name }}{% endraw %} A $IP"
+    }
+}""" | base64 -w0)
+
+FORCEDNS=$(echo """#!/bin/bash
+IP=\$(/bin/hostname -I | awk "{print \$1}"
+if [ "\$2" = "dhcp4-change" ] || [ "\$2" = "dhcp6-change" ] || [ "\$2" = "up" ] || [ "\$2" = "connectivity-change" ]; then
+  sleep 2
+  IP=\$(/bin/hostname -I | awk "{print \$1}")
+  echo \$IP
+  if [ "\$IP" != "" ] ; then
+    grep -q \$IP /etc/resolv.conf
+    if [ "\$?" != "0" ] ; then
+      sed -i "s/$CLUSTER.$DOMAIN//" /etc/resolv.conf
+      sed -i "s/search /search $CLUSTER.$DOMAIN /" /etc/resolv.conf
+      sed -i "/nameserver.* \# coredns/d" /etc/resolv.conf
+      sed -i "0,/nameserver/s/nameserver/nameserver \$IP \#coredns\n\&/" /etc/resolv.conf
+    fi
+  fi
+fi"""| base64 -w0)
+
+cat /opt/openshift/master.ign | jq ".storage.files |= . + [{\"filesystem\": \"root\", \"mode\": 448, \"path\": \"/etc/kubernetes/manifests/coredns.yml\", \"contents\": {\"source\": \"data:text/plain;charset=utf-8;base64,$COREDNS\", \"verification\": {}}},{\"filesystem\": \"root\", \"mode\": 448, \"path\": \"/etc/kubernetes/Corefile\", \"contents\": {\"source\":\"data:text/plain;charset=utf-8;base64,$COREFILE\",\"verification\": {}}},{\"filesystem\": \"root\", \"mode\": 448, \"path\": \"/etc/NetworkManager/dispatcher.d/99-forcedns\", \"contents\": {\"source\":\"data:text/plain;charset=utf-8;base64,$FORCEDNS\",\"verification\": {}}}]" > /root/master.ign
+
 # Write image + ignition to disk
-echo "Executing coreos-installer with the following options: install -i /opt/openshift/master.ign  REPLACE_INSTALLATION_DISK"
-coreos-installer install -i /opt/openshift/master.ign REPLACE_INSTALLATION_DISK
+echo "Executing coreos-installer with the following options: install -i /root/master.ign  REPLACE_INSTALLATION_DISK"
+coreos-installer install -i /root/master.ign REPLACE_INSTALLATION_DISK
 
 echo "Going to reboot"
 shutdown -r +1 "Bootstrap completed, server is going to reboot."
