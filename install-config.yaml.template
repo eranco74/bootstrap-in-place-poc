@@ -26,6 +26,8 @@ networking:
   - 172.30.0.0/16
 platform:
   none: {}
+BootstrapInPlace:
+  InstallationDisk: INSTALLATION_DISK
 publish: External
 pullSecret: |
         YOUR_PULL_SECRET
