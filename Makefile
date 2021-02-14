@@ -9,7 +9,7 @@ ifndef PULL_SECRET
 endif
 
 INSTALLATION_DISK ?= /dev/vda
-RELEASE_IMAGE ?= registry.svc.ci.openshift.org/sno-dev/openshift-bip:0.3.0
+RELEASE_IMAGE ?= registry.svc.ci.openshift.org/sno-dev/openshift-bip:0.5.0
 
 ########################
 
@@ -83,6 +83,7 @@ destroy-libvirt:
 $(INSTALL_CONFIG): $(INSTALL_CONFIG_TEMPLATE) checkenv $(SSH_KEY_PUB_PATH)
 	sed -e 's/YOUR_PULL_SECRET/$(PULL_SECRET)/' \
 	    -e 's|YOUR_SSH_KEY|$(shell cat $(SSH_KEY_PUB_PATH))|' \
+	    -e 's|INSTALLATION_DISK|$(INSTALLATION_DISK)|' \
 	    $(INSTALL_CONFIG_TEMPLATE) > $(INSTALL_CONFIG)
 
 # Render the libvirt net config file with the network name and host IP
@@ -117,7 +118,6 @@ registry-conifg.json:
 
 # Use the openshift-installer to generate BiP Live ISO ignition file
 $(BIP_LIVE_ISO_IGNITION): $(INSTALL_CONFIG_IN_WORKDIR) $(INSTALLER_BIN)
-	INSTALLATION_DISK=$(INSTALLATION_DISK) \
 	RELEASE_IMAGE=$(RELEASE_IMAGE) \
 	INSTALLER_BIN=$(INSTALLER_BIN) \
 	INSTALLER_WORKDIR=$(INSTALLER_WORKDIR) \
