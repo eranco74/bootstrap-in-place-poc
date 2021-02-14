@@ -13,3 +13,4 @@
 /ignition-overrides/complete-installation.sh
 /.dns_changes_confirmed
 /bin/
+/registry-conifg.json

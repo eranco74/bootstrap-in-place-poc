@@ -70,6 +70,7 @@ $(SSH_KEY_PUB_PATH): $(SSH_KEY_PRIV_PATH)
 
 clean: destroy-libvirt
 	rm -rf $(INSTALLER_WORKDIR)
+	rm -rf registry-conifg.json
 
 destroy-libvirt:
 	echo "Destroying previous libvirt resources"
@@ -109,8 +110,11 @@ $(INSTALLER_ISO_PATH):
 	$(SNO_DIR)/download_live_iso.sh $@
 
 # Get the openshift-installer from the release image
-$(INSTALLER_BIN):
-	oc adm release extract --command=openshift-install --to ./bin $(RELEASE_IMAGE)
+$(INSTALLER_BIN): registry-conifg.json
+       oc adm release extract --registry-config=registry-conifg.json --command=openshift-install --to ./bin $(RELEASE_IMAGE)
+
+registry-conifg.json:
+	jq -n '$(PULL_SECRET)' > registry-conifg.json
 
 # Use the openshift-installer to generate BiP Live ISO ignition file
 $(BIP_LIVE_ISO_IGNITION): $(INSTALL_CONFIG_IN_WORKDIR) $(INSTALLER_BIN)
