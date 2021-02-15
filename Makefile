@@ -111,7 +111,7 @@ $(INSTALLER_ISO_PATH):
 
 # Get the openshift-installer from the release image
 $(INSTALLER_BIN): registry-conifg.json
-       oc adm release extract --registry-config=registry-conifg.json --command=openshift-install --to ./bin $(RELEASE_IMAGE)
+	oc adm release extract --registry-config=registry-conifg.json --command=openshift-install --to ./bin $(RELEASE_IMAGE)
 
 registry-conifg.json:
 	jq -n '$(PULL_SECRET)' > registry-conifg.json
