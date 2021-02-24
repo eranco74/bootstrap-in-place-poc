@@ -9,7 +9,7 @@ ifndef PULL_SECRET
 endif
 
 INSTALLATION_DISK ?= /dev/vda
-RELEASE_IMAGE ?= registry.svc.ci.openshift.org/sno-dev/openshift-bip:0.5.0
+RELEASE_IMAGE ?= registry.svc.ci.openshift.org/sno-dev/openshift-bip:0.6.0
 
 ########################
 
