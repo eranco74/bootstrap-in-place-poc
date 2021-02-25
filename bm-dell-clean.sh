@@ -2,4 +2,4 @@
   
 set -euxo pipefail
 
-podman rm -f  httpd-iso 
+podman rm -f  httpd-iso

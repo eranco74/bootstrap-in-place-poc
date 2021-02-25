@@ -69,9 +69,9 @@ $(SSH_KEY_PUB_PATH): $(SSH_KEY_PRIV_PATH)
 .SILENT: destroy-libvirt
 
 clean: destroy-libvirt
-	$(SNO_DIR)/bm-dell-clean.sh
 	rm -rf $(INSTALLER_WORKDIR)
 	rm -rf registry-config.json
+	$(SNO_DIR)/bm-dell-clean.sh || true
 
 destroy-libvirt:
 	echo "Destroying previous libvirt resources"
