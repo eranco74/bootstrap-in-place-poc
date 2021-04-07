@@ -1,4 +1,8 @@
+# Disable built-in rules
+MAKEFLAGS += --no-builtin-rules
+
 SNO_DIR = .
+
 ########################
 # User variables
 ########################
@@ -114,11 +118,21 @@ $(INSTALLER_ISO_PATH):
 $(INSTALLER_BIN): registry-config.json
 	oc adm release extract --registry-config=registry-config.json --command=openshift-install --to ./bin $(RELEASE_IMAGE)
 
+.PHONY: registry-config.json
 registry-config.json:
 	jq -n '$(PULL_SECRET)' > registry-config.json
 
+# Allow user to define custom manifests in ./manifests/*.yaml
+$(INSTALLER_WORKDIR)/manifests: $(INSTALL_CONFIG_IN_WORKDIR) $(INSTALLER_BIN) $(SNO_DIR)/manifests
+	RELEASE_IMAGE=$(RELEASE_IMAGE) \
+	INSTALLER_BIN=$(INSTALLER_BIN) \
+	INSTALLER_WORKDIR=$(INSTALLER_WORKDIR) \
+	$(SNO_DIR)/manifests.sh 
+	@echo Copying user manifests...
+	$(shell echo cp -v $(SNO_DIR)/manifests/*.yaml $(INSTALLER_WORKDIR)/manifests/)
+
 # Use the openshift-installer to generate BiP Live ISO ignition file
-$(BIP_LIVE_ISO_IGNITION): $(INSTALL_CONFIG_IN_WORKDIR) $(INSTALLER_BIN)
+$(BIP_LIVE_ISO_IGNITION): $(INSTALLER_WORKDIR)/manifests
 	RELEASE_IMAGE=$(RELEASE_IMAGE) \
 	INSTALLER_BIN=$(INSTALLER_BIN) \
 	INSTALLER_WORKDIR=$(INSTALLER_WORKDIR) \
@@ -147,6 +161,11 @@ start-iso: $(INSTALLER_ISO_PATH_SNO_IN_LIBVIRT) network
 
 ssh: $(SSH_KEY_PRIV_PATH)
 	ssh $(SSH_FLAGS) $(SSH_HOST)
+
+dump_ignition:
+	@[ ! -f $(BIP_LIVE_ISO_IGNITION) ] && echo $(BIP_LIVE_ISO_IGNITION) does not exist && exit 1 || true
+	@echo Dumping ignition into ./ign-root/
+	python3 $(SNO_DIR)/ignition_dump.py $(BIP_LIVE_ISO_IGNITION)
 
 gather:
 	@echo Gathering logs...
