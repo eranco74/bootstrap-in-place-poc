@@ -17,8 +17,11 @@ for file in ign_json['storage']['files']:
         datatype, data = file['contents']['source'].split(',')
         os.makedirs('ign-root' + os.path.dirname(path), exist_ok=True)
         out_file = open('ign-root' + path, "wb")
-        if datatype == "data:text/plain":
-            out_file.write(unquote(data).encode('utf-8'))
-        else:
-            out_file.write(base64.b64decode(data))
+        try:
+            if datatype == "data:text/plain" or datatype == 'data:':
+                out_file.write(unquote(data).encode('utf-8'))
+            else:
+                out_file.write(base64.b64decode(data))
+        except:
+            print(out_file, "failed", datatype)
         out_file.close()

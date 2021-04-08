@@ -129,7 +129,7 @@ $(INSTALLER_WORKDIR)/manifests: $(INSTALL_CONFIG_IN_WORKDIR) $(INSTALLER_BIN) $(
 	INSTALLER_WORKDIR=$(INSTALLER_WORKDIR) \
 	$(SNO_DIR)/manifests.sh 
 	@echo Copying user manifests...
-	$(shell echo cp -v $(SNO_DIR)/manifests/*.yaml $(INSTALLER_WORKDIR)/manifests/)
+	$(shell echo 'cp -v $(SNO_DIR)/manifests/*.yaml $(INSTALLER_WORKDIR)/manifests/ || true')
 
 # Use the openshift-installer to generate BiP Live ISO ignition file
 $(BIP_LIVE_ISO_IGNITION): $(INSTALLER_WORKDIR)/manifests
@@ -165,6 +165,7 @@ ssh: $(SSH_KEY_PRIV_PATH)
 dump_ignition:
 	@[ ! -f $(BIP_LIVE_ISO_IGNITION) ] && echo $(BIP_LIVE_ISO_IGNITION) does not exist && exit 1 || true
 	@echo Dumping ignition into ./ign-root/
+	rm -rf ./ign-root/
 	python3 $(SNO_DIR)/ignition_dump.py $(BIP_LIVE_ISO_IGNITION)
 
 gather:
