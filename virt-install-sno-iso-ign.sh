@@ -24,6 +24,7 @@ RAM_MB="16384"
 DISK_GB="30"
 CPU_CORE="6"
 
+rm nohup.out
 nohup virt-install \
     --connect qemu:///system \
     -n "${VM_NAME}" \
