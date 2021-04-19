@@ -22,7 +22,7 @@ See https://github.com/openshift/enhancements/pull/565
 - Generate an ignition file using the installer with `./generate.sh`. Invocation example:
 ```bash
 INSTALLATION_DISK=/dev/sda \
-RELEASE_IMAGE=registry.svc.ci.openshift.org/sno-dev/openshift-bip:0.6.0 \
+RELEASE_IMAGE=quay.io/openshift-release-dev/ocp-release:4.8.0-fc.0-x86_64 \
 INSTALLER_BIN=./bin/openshift-install \
 INSTALLER_WORKDIR=./sno-workdir \
 ./generate.sh
