@@ -1,5 +1,4 @@
-export RHCOS_VERSION=${RHCOS_VERSION:-47.83.202102090044-0}
-export BASE_OS_IMAGE=${BASE_OS_IMAGE:-https://releases-art-rhcos.svc.ci.openshift.org/art/storage/releases/rhcos-4.7/${RHCOS_VERSION}/x86_64/rhcos-${RHCOS_VERSION}-live.x86_64.iso}
+export BASE_OS_IMAGE=${BASE_OS_IMAGE:-https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.7/4.7.0/rhcos-4.7.0-x86_64-live.x86_64.iso}
 
 if [ $# -eq 0 ]; then
     echo "USAGE: $0 download_path"

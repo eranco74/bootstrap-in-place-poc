@@ -13,7 +13,7 @@ ifndef PULL_SECRET
 endif
 
 INSTALLATION_DISK ?= /dev/vda
-RELEASE_IMAGE ?= registry.svc.ci.openshift.org/sno-dev/openshift-bip:0.6.0
+RELEASE_IMAGE ?= quay.io/openshift-release-dev/ocp-release:4.8.0-fc.0-x86_64
 
 ########################
 
