@@ -21,12 +21,14 @@ INSTALLER_WORKDIR = sno-workdir
 INSTALLER_BIN = bin/openshift-install
 LIVE_ISO_IGNITION_NAME = bootstrap-in-place-for-live-iso.ign
 BIP_LIVE_ISO_IGNITION = $(INSTALLER_WORKDIR)/$(LIVE_ISO_IGNITION_NAME)
-
+KUBECONFIG=$(INSTALLER_WORKDIR)/auth/kubeconfig
 LIBVIRT_ISO_PATH = /var/lib/libvirt/images
 INSTALLER_ISO_PATH = $(SNO_DIR)/installer-image.iso
 INSTALLER_ISO_PATH_SNO = $(SNO_DIR)/installer-SNO-image.iso
 INSTALLER_ISO_PATH_SNO_IN_LIBVIRT = $(LIBVIRT_ISO_PATH)/installer-SNO-image.iso
-
+WORKER_IMAGE_PATH = /tmp/rhcos-48.83.202103221318-0-qemu.x86_64.qcow2
+WORKER_IGNITION = worker/worker.ign
+WORKER_IGNITION_TEMPLATE = worker/worker.ign.template
 INSTALL_CONFIG_TEMPLATE = $(SNO_DIR)/install-config.yaml.template
 INSTALL_CONFIG = $(SNO_DIR)/install-config.yaml
 INSTALL_CONFIG_IN_WORKDIR = $(INSTALLER_WORKDIR)/install-config.yaml
@@ -148,16 +150,36 @@ $(INSTALLER_ISO_PATH_SNO): $(BIP_LIVE_ISO_IGNITION) $(INSTALLER_ISO_PATH)
 	OUTPUT_PATH=$@ \
 	$(SNO_DIR)/embed.sh 
 
-$(INSTALLER_ISO_PATH_SNO_IN_LIBVIRT): $(INSTALLER_ISO_PATH_SNO)
-	sudo cp $< $@
-	sudo chown qemu:qemu $@
-
 # Destroy previously created VMs/Networks and create a VM/Network with an ISO containing the BiP embedded ignition file
 start-iso: $(INSTALLER_ISO_PATH_SNO_IN_LIBVIRT) network
 	RHCOS_ISO=$(INSTALLER_ISO_PATH_SNO_IN_LIBVIRT) \
 	VM_NAME=$(VM_NAME) \
 	NET_NAME=$(NET_NAME) \
 	$(SNO_DIR)/virt-install-sno-iso-ign.sh
+
+
+$(INSTALLER_ISO_PATH_SNO_IN_LIBVIRT): $(INSTALLER_ISO_PATH_SNO)
+	sudo cp $< $@
+	sudo chown qemu:qemu $@
+
+$(WORKER_IMAGE_PATH):
+	wget https://releases-art-rhcos.svc.ci.openshift.org/art/storage/releases/rhcos-4.8/48.83.202103221318-0/x86_64/rhcos-48.83.202103221318-0-qemu.x86_64.qcow2.gz
+	mv rhcos-48.83.202103221318-0-qemu.x86_64.qcow2.gz /tmp
+	gunzip /tmp/rhcos-48.83.202103221318-0-qemu.x86_64.qcow2.gz
+
+.PHONY: $(WORKER_IGNITION)
+$(WORKER_IGNITION):
+	sed -e 's/REPLACE_CA_CRT/$(shell kubectl --kubeconfig=$(KUBECONFIG) get configmap -n kube-system root-ca -o jsonpath='{.data.ca\.crt}' | base64)/' $(WORKER_IGNITION_TEMPLATE) > $@
+
+# Create a VM with a basic ISO and provide the worker ignition file
+start-worker: $(WORKER_IMAGE_PATH)
+	RHCOS_IMAGE=$(WORKER_IMAGE_PATH) \
+	VM_NAME=worker-1 \
+	NET_NAME=$(NET_NAME) \
+	$(SNO_DIR)/virt-install-worker.sh $(WORKER_IGNITION)
+
+destroy-worker:
+	sudo virsh destroy worker-1 && sudo virsh undefine worker-1 && sudo virsh vol-delete --pool default worker-1.qcow2
 
 ssh: $(SSH_KEY_PRIV_PATH)
 	ssh $(SSH_FLAGS) $(SSH_HOST)

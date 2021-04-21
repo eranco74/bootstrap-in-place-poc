@@ -1,0 +1,1 @@
+{"ignition":{"config":{"merge":[{"source":"https://api-int.test-cluster.redhat.com:22623/config/worker"}]},"security":{"tls":{"certificateAuthorities":[{"source":"data:text/plain;charset=utf-8;base64,REPLACE_CA_CRT"}]}},"version":"3.1.0"}}

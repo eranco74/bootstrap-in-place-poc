@@ -21,7 +21,7 @@ fi
 
 OS_VARIANT="rhel8.1"
 RAM_MB="16384"
-DISK_GB="30"
+DISK_GB="11"
 CPU_CORE="6"
 
 rm nohup.out
