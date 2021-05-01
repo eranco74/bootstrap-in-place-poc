@@ -20,9 +20,9 @@ if [ -z ${NET_NAME+x} ]; then
 fi
 
 OS_VARIANT="rhel8.1"
-RAM_MB="16384"
-DISK_GB="30"
-CPU_CORE="6"
+RAM_MB="${RAM_MB:-16384}"
+DISK_GB="${DISK_GB:-30}"
+CPU_CORE="${CPU_CORE:-6}"
 
 rm nohup.out
 nohup virt-install \
