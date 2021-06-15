@@ -4,7 +4,7 @@ See https://github.com/openshift/enhancements/pull/565
 - Set PULL_SECRET environment variable to your pull secret
 - `make start-iso` - Spins up a VM with the the liveCD. This will automatically perform the following actions:
 	- Extract the openshift installer from the release image
-	- Generate the install-config.yaml 
+	- Generate the install-config.yaml
 	- Execute the openshift-installer `create single-node-ignition-config` command to generate the bootstrap-in-place-for-live-iso.ign.
 	- Add the complete-installation.service to bootstrap-in-place-for-live-iso.ign.
 	- Download the RHCOS live ISO
@@ -18,7 +18,18 @@ See https://github.com/openshift/enhancements/pull/565
 - Create an `install-config.yaml` in the sno-workdir. An example file can be found in `./install-config.yaml.template`
 - Download the ISO to the workdir `./download_live_iso.sh sno-workdir/base.iso`
 - Get an installer binary using `oc adm release extract --command=openshift-install --to ./bin ${RELEASE_IMAGE}
-` 
+`
+- (optional) If custom manifests are defined, generate manifests with `./manifests.sh` and then copy custom manifests into generated folder. Invocation examples:
+```bash
+INSTALLATION_DISK=/dev/sda \
+RELEASE_IMAGE=quay.io/openshift-release-dev/ocp-release:4.8.0-fc.0-x86_64 \
+INSTALLER_BIN=./bin/openshift-install \
+INSTALLER_WORKDIR=./sno-workdir \
+./manifests.sh
+```
+```bash
+cp ./manifests/*.yaml $INSTALLER_WORKDIR/manifests/
+```
 - Generate an ignition file using the installer with `./generate.sh`. Invocation example:
 ```bash
 INSTALLATION_DISK=/dev/sda \
