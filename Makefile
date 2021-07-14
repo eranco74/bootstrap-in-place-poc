@@ -90,7 +90,7 @@ $(INSTALL_CONFIG): $(INSTALL_CONFIG_TEMPLATE) checkenv $(SSH_KEY_PUB_PATH)
 	sed -e 's/YOUR_PULL_SECRET/$(PULL_SECRET)/' \
 	    -e 's|YOUR_SSH_KEY|$(shell cat $(SSH_KEY_PUB_PATH))|' \
 	    -e 's|INSTALLATION_DISK|$(INSTALLATION_DISK)|' \
-		-e 's|CLUSTER_SVC_NETWORK|$(CLUSTER_SVC_NETWORK)|' \
+	    -e 's|CLUSTER_SVC_NETWORK|$(CLUSTER_SVC_NETWORK)|' \
 	    $(INSTALL_CONFIG_TEMPLATE) > $(INSTALL_CONFIG)
 
 # Render the libvirt net config file with the network name and host IP
