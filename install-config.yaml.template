@@ -17,10 +17,10 @@ metadata:
   name: test-cluster
 networking:
   clusterNetwork:
-  - cidr: 10.128.0.0/14
+  - cidr: CLUSTER_NETWORK
     hostPrefix: 23
   machineNetwork:
-  - cidr: 192.168.126.0/24
+  - cidr: MACHINE_NETWORK
   networkType: OpenShiftSDN
   serviceNetwork:
   - CLUSTER_SVC_NETWORK

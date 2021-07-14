@@ -15,7 +15,10 @@ See https://github.com/openshift/enhancements/pull/565
 
 # How to run - manual mode
 - Create a workdir for the installer - `mkdir sno-workdir`
-- Create an `install-config.yaml` in the sno-workdir. An example file can be found in `./install-config.yaml.template`
+- Create an `install-config.yaml` in the sno-workdir. An example file can be found in `./install-config.yaml.template`. There are a small number of fields in the template that should be set by hand. Reasonable defaults are given below.
+  * `MACHINE_NETWORK` - the machine network CIDR. A good default is `192.168.126.0/24`. 
+  * `CLUSTER_SVC_NETWORK` - the cluster service network CIDR. A good default is `172.30.0.0/16`.
+  * `CLUSTER_NETWORK` - the cluster network CIDR. A good default is `10.128.0.0/14`.
 - Download the ISO to the workdir `./download_live_iso.sh sno-workdir/base.iso`
 - Get an installer binary using `oc adm release extract --command=openshift-install --to ./bin ${RELEASE_IMAGE}
 `
