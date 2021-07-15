@@ -27,6 +27,10 @@ INSTALLER_ISO_PATH = $(SNO_DIR)/installer-image.iso
 INSTALLER_ISO_PATH_SNO = $(SNO_DIR)/installer-SNO-image.iso
 INSTALLER_ISO_PATH_SNO_IN_LIBVIRT = $(LIBVIRT_ISO_PATH)/installer-SNO-image.iso
 
+MACHINE_NETWORK ?= 192.168.126.0/24
+CLUSTER_NETWORK ?= 10.128.0.0/14
+CLUSTER_SVC_NETWORK ?= 172.30.0.0/16
+
 INSTALL_CONFIG_TEMPLATE = $(SNO_DIR)/install-config.yaml.template
 INSTALL_CONFIG = $(SNO_DIR)/install-config.yaml
 INSTALL_CONFIG_IN_WORKDIR = $(INSTALLER_WORKDIR)/install-config.yaml
@@ -89,6 +93,9 @@ $(INSTALL_CONFIG): $(INSTALL_CONFIG_TEMPLATE) checkenv $(SSH_KEY_PUB_PATH)
 	sed -e 's/YOUR_PULL_SECRET/$(PULL_SECRET)/' \
 	    -e 's|YOUR_SSH_KEY|$(shell cat $(SSH_KEY_PUB_PATH))|' \
 	    -e 's|INSTALLATION_DISK|$(INSTALLATION_DISK)|' \
+	    -e 's|CLUSTER_NETWORK|$(CLUSTER_NETWORK)|' \
+	    -e 's|MACHINE_NETWORK|$(MACHINE_NETWORK)|' \
+	    -e 's|CLUSTER_SVC_NETWORK|$(CLUSTER_SVC_NETWORK)|' \
 	    $(INSTALL_CONFIG_TEMPLATE) > $(INSTALL_CONFIG)
 
 # Render the libvirt net config file with the network name and host IP
