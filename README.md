@@ -1,5 +1,19 @@
 See https://github.com/openshift/enhancements/pull/565
 
+Note that this repo is just a proof-of-concept. This repo is for debugging / experimenting with
+single-node *bootstrap-in-place* installation. Clusters created by this repo are not officialy supported.
+
+bootstrap-in-place is currently unsupported (and doesn't even work) on any cloud providers, it's meant
+for barematel / virtual machines that can boot arbitrary ISO files. Even for those purposes, it might
+be easier for you to just use the RedHat OpenShift Assisted Installer - it's a much more friendly interface
+to install Single Node OpenShift on baremetal with proper configurations, validations and bootstrap-in-place
+support.
+
+If you need a single-node cluster on a cloud provider - the recommended (but still currently not officialy supported) way is 
+by just using regular IPI installer and setting the `install-config.yaml` control plane replicas to 1 and the compute replicas 
+to 0. This will create, during installation, a temporary extra bootstrap node which will get automatically
+torn down by the installer when installation is done, leaving you with a single-node OpenShift installation.
+
 # How to run - automatic makefile
 - Set PULL_SECRET environment variable to your pull secret
 - `make start-iso` - Spins up a VM with the the liveCD. This will automatically perform the following actions:
