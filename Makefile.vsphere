@@ -1,0 +1,53 @@
+########################
+# User variables
+########################
+
+VSPHERE_DATACENTER_NAME ?= <REPLACE_VSPHERE_DATACENTER_NAME>
+VSPHERE_DATASTORE_NAME ?= <REPLACE_VSPHERE_DATASTORE_NAME>
+VSPHERE_NETWORK_NAME ?= <REPLACE_VSPHERE_NETWORK_NAME>
+VSPHERE_USER ?= <REPLACE_VSPHERE_USER>
+VSPHERE_PASSWORD ?= <REPLACE_VSPHERE_PASSWORD>
+VSPHERE_SERVER ?= <REPLACE_VSPHERE_SERVER>
+VSPHERE_VM_NAME ?= <REPLACE_VSPHERE_VM_NAME>
+
+########################
+
+destroy-vsphere: $(TF_VARS) terraform
+	echo "Destroying previous vSphere resources"
+	cd $(SNO_DIR)/terraform/vsphere && terraform destroy -auto-approve
+
+# Render the terraform vars file with the vSphere info
+$(TF_VARS): $(TF_VARS_TEMPLATE)
+	sed -e 's/REPLACE_VSPHERE_DATACENTER_NAME/$(VSPHERE_DATACENTER_NAME)/' \
+		-e 's/REPLACE_VSPHERE_DATASTORE_NAME/$(VSPHERE_DATASTORE_NAME)/' \
+		-e 's/REPLACE_VSPHERE_NETWORK_NAME/$(VSPHERE_NETWORK_NAME)/' \
+		-e 's/REPLACE_VSPHERE_USER/$(VSPHERE_USER)/' \
+		-e 's/REPLACE_VSPHERE_PASSWORD/$(VSPHERE_PASSWORD)/' \
+		-e 's/REPLACE_VSPHERE_SERVER/$(VSPHERE_SERVER)/' \
+		-e 's/REPLACE_SNO_VM_NAME/$(VSPHERE_VM_NAME)/' \
+		-e 's/REPLACE_SNO_WORKDIR/$(INSTALLER_WORKDIR)/' \
+	    $(TF_VARS_TEMPLATE) > $@
+
+deploy-vsphere: $(TF_VARS) terraform
+	rm -rf ./$(INSTALLER_WORKDIR)
+	mkdir ./$(INSTALLER_WORKDIR)
+	oc adm release extract --command=openshift-install --to ./bin ${RELEASE_IMAGE} -a $(PULL_SECRET)
+	@[ ! -f $(INSTALL_CONFIG) ] && echo $(INSTALL_CONFIG) does not exist && exit 1 || true
+	cp $(INSTALL_CONFIG) $(INSTALLER_WORKDIR)
+	INSTALLATION_DISK=$(INSTALLATION_DISK) \
+	RELEASE_IMAGE=$(RELEASE_IMAGE) \
+	INSTALLER_BIN=$(INSTALLER_BIN) \
+	INSTALLER_WORKDIR=$(INSTALLER_WORKDIR) \
+	./manifests.sh
+	cp ./manifests/*.yaml $(INSTALLER_WORKDIR)/manifests/
+	INSTALLATION_DISK=$(INSTALLATION_DISK) \
+	RELEASE_IMAGE=$(RELEASE_IMAGE) \
+	INSTALLER_BIN=$(INSTALLER_BIN) \
+	INSTALLER_WORKDIR=$(INSTALLER_WORKDIR) \
+	./generate.sh
+	./download_live_iso.sh $(INSTALLER_WORKDIR)/base.iso
+	ISO_PATH=$(INSTALLER_WORKDIR)/base.iso \
+    IGNITION_PATH=$(BIP_LIVE_ISO_IGNITION) \
+    OUTPUT_PATH=$(INSTALLER_WORKDIR)/embedded.iso \
+    ./embed.sh
+	cd $(SNO_DIR)/terraform/vsphere && terraform init && terraform apply -auto-approve

@@ -15,10 +15,10 @@ if [ -z ${VOL_NAME+x} ]; then
 	exit 1
 fi
 
-sudo virsh undefine $VM_NAME
-sudo virsh destroy $VM_NAME
+sudo virsh undefine "$VM_NAME"
+sudo virsh destroy "$VM_NAME"
 
-sudo virsh net-undefine $NET_NAME
-sudo virsh net-destroy $NET_NAME
+sudo virsh net-undefine "$NET_NAME"
+sudo virsh net-destroy "$NET_NAME"
 
-sudo virsh vol-delete --pool default ${VOL_NAME}
+sudo virsh vol-delete --pool default "${VOL_NAME}"

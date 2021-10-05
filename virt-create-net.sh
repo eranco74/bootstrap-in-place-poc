@@ -15,7 +15,7 @@
 if [ -t 1 ]; then
     function ask_yes_or_no() {
         read -p "$1 ([y]es or [N]o): "
-        case $(echo $REPLY | tr '[A-Z]' '[a-z]') in
+        case $(echo "$REPLY" | tr '[A-Z]' '[a-z]') in
             y|yes) echo "yes" ;;
             *)     echo "no" ;;
         esac
@@ -35,7 +35,7 @@ if [ -z ${NET_XML+x} ]; then
 	exit 1
 fi
 
-sudo virsh net-create ${NET_XML}
+sudo virsh net-create "${NET_XML}"
 
 echo server=/api.test-cluster.redhat.com/192.168.126.1 | sudo tee /etc/NetworkManager/dnsmasq.d/aio.conf
 echo -e "[main]\ndns=dnsmasq" | sudo tee /etc/NetworkManager/conf.d/aio.conf

@@ -6,5 +6,4 @@ if [ $# -eq 0 ]; then
 fi
 
 DOWNLOAD_PATH=$1
-curl ${BASE_OS_IMAGE} --retry 5 -o $DOWNLOAD_PATH
-
+curl "${BASE_OS_IMAGE}" --retry 5 -o "${DOWNLOAD_PATH}"
