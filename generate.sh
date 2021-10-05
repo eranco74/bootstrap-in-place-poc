@@ -2,7 +2,6 @@
 
 set -euxo pipefail
 
-
 if [ -z ${RELEASE_IMAGE+x} ]; then
 	echo "Please set RELEASE_IMAGE"
 	exit 1
@@ -19,4 +18,4 @@ if [ -z ${INSTALLER_WORKDIR+x} ]; then
 fi
 
 OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE="${RELEASE_IMAGE}" \
-${INSTALLER_BIN} create single-node-ignition-config --dir=${INSTALLER_WORKDIR}
+${INSTALLER_BIN} create single-node-ignition-config --dir="${INSTALLER_WORKDIR}"

@@ -1,0 +1,45 @@
+# Setting vSphere variables
+variable "vsphere_datacenter_name" {
+  type = string
+  default = "REPLACE_VSPHERE_DATACENTER_NAME"
+}
+
+variable "vsphere_datastore_name" {
+  type = string
+  default = "REPLACE_VSPHERE_DATASTORE_NAME"
+}
+
+variable "vsphere_network_name" {
+  type = string
+  default = "REPLACE_VSPHERE_NETWORK_NAME"
+}
+
+variable "vsphere_user" {
+  type = string
+  default = "REPLACE_VSPHERE_USER"
+}
+
+variable "vsphere_password" {
+  type = string
+  default = "REPLACE_VSPHERE_PASSWORD"
+}
+
+variable "vsphere_server" {
+  type = string
+  default = "REPLACE_VSPHERE_SERVER"
+}
+
+variable "allow_unverified_ssl" {
+  type = bool
+  default = true
+}
+
+variable "sno_vm_name" {
+  type = string
+  default = "REPLACE_SNO_VM_NAME"
+}
+
+variable "sno_workdir" {
+  type = string
+  default = "REPLACE_SNO_WORKDIR"
+}

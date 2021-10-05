@@ -23,13 +23,12 @@ podman run \
     --rm \
     -v /dev:/dev \
     -v /run/udev:/run/udev \
-    -v $(realpath $(dirname $ISO_PATH)):/data:Z \
-    -v $(realpath $(dirname $IGNITION_PATH)):/ignition_data:Z \
-    -v $(realpath $(dirname $OUTPUT_PATH)):/output_data:Z \
+    -v $(realpath $(dirname "$ISO_PATH")):/data:Z \
+    -v $(realpath $(dirname "$IGNITION_PATH")):/ignition_data:Z \
+    -v $(realpath $(dirname "$OUTPUT_PATH")):/output_data:Z \
     --workdir /data \
     quay.io/coreos/coreos-installer:release \
-    iso ignition embed /data/$(basename $ISO_PATH) \
+    iso ignition embed /data/$(basename "$ISO_PATH") \
     --force \
-    --ignition-file /ignition_data/$(basename $IGNITION_PATH) \
-    --output /output_data/$(basename $OUTPUT_PATH)
-
+    --ignition-file /ignition_data/$(basename "$IGNITION_PATH") \
+    --output /output_data/$(basename "$OUTPUT_PATH")

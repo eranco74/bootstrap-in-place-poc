@@ -20,4 +20,4 @@ fi
 echo Generating manifests...
 
 OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE="${RELEASE_IMAGE}" \
-${INSTALLER_BIN} create manifests --dir=${INSTALLER_WORKDIR}
+${INSTALLER_BIN} create manifests --dir="${INSTALLER_WORKDIR}"

@@ -1,3 +1,5 @@
+include Makefile.vsphere
+
 # Disable built-in rules
 MAKEFLAGS += --no-builtin-rules
 
