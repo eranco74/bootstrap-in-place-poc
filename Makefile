@@ -15,7 +15,7 @@ ifndef PULL_SECRET
 endif
 
 INSTALLATION_DISK ?= /dev/vda
-RELEASE_IMAGE ?= quay.io/openshift-release-dev/ocp-release:4.9.9-x86_64
+RELEASE_IMAGE ?= quay.io/openshift/okd:4.8.0-0.okd-2021-11-14-052418
 
 ########################
 
@@ -50,7 +50,8 @@ SSH_KEY_PRIV_PATH = $(SSH_KEY_DIR)/key
 
 SSH_FLAGS = -o IdentityFile=$(SSH_KEY_PRIV_PATH) \
  			-o UserKnownHostsFile=/dev/null \
- 			-o StrictHostKeyChecking=no
+ 			-o StrictHostKeyChecking=no \
+ 			-v  
 
 HOST_IP = 192.168.126.10
 SSH_HOST = core@$(HOST_IP)

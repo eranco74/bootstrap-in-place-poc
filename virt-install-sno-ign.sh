@@ -12,8 +12,8 @@ sudo restorecon "${IGNITION_CONFIG}"
 RHCOS_IMAGE="/tmp/rhcos-46.82.202008181646-0-qemu.x86_64.qcow2"
 VM_NAME="sno-test"
 OS_VARIANT="rhel8.1"
-RAM_MB="${RAM_MB:-16384}"
-DISK_GB="${DISK_GB:-20}"
+RAM_MB="${RAM_MB:-23384}"
+DISK_GB="${DISK_GB:-30}"
 
 virt-install \
     --connect qemu:///system \

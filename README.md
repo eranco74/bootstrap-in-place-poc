@@ -28,7 +28,7 @@ Since the manual mode does not have strong dependencies on any platform (i.e., p
 - (optional) If custom manifests are defined, generate manifests with `./manifests.sh` and then copy custom manifests into generated folder. Invocation examples:
 ```bash
 INSTALLATION_DISK=/dev/sda \
-RELEASE_IMAGE=quay.io/openshift-release-dev/ocp-release:4.9.9-x86_64 \
+RELEASE_IMAGE=quay.io/openshift/okd:4.8.0-0.okd-2021-11-14-052418 \
 INSTALLER_BIN=./bin/openshift-install \
 INSTALLER_WORKDIR=./sno-workdir \
 ./manifests.sh
@@ -39,7 +39,7 @@ cp ./manifests/*.yaml $INSTALLER_WORKDIR/manifests/
 - Generate an ignition file using the installer with `./generate.sh`. Invocation example:
 ```bash
 INSTALLATION_DISK=/dev/sda \
-RELEASE_IMAGE=quay.io/openshift-release-dev/ocp-release:4.9.9-x86_64 \
+RELEASE_IMAGE=quay.io/openshift/okd:4.8.0-0.okd-2021-11-14-052418 \
 INSTALLER_BIN=./bin/openshift-install \
 INSTALLER_WORKDIR=./sno-workdir \
 ./generate.sh

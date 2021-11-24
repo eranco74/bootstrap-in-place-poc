@@ -20,7 +20,7 @@ if [ -z ${NET_NAME+x} ]; then
 fi
 
 OS_VARIANT="rhel8.1"
-RAM_MB="${RAM_MB:-16384}"
+RAM_MB="${RAM_MB:-28384}"
 DISK_GB="${DISK_GB:-30}"
 CPU_CORE="${CPU_CORE:-6}"
 
