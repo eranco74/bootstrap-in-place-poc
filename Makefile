@@ -15,7 +15,7 @@ ifndef PULL_SECRET
 endif
 
 INSTALLATION_DISK ?= /dev/vda
-RELEASE_IMAGE ?= quay.io/openshift-release-dev/ocp-release:4.9.9-x86_64
+RELEASE_IMAGE ?= quay.io/openshift-release-dev/ocp-release:4.10.6-x86_64
 
 ########################
 
@@ -129,7 +129,7 @@ $(INSTALLER_BIN): registry-config.json
 
 .PHONY: registry-config.json
 registry-config.json:
-	jq -n '$(PULL_SECRET)' > registry-config.json
+	jq -n -c '$(PULL_SECRET)' > registry-config.json
 
 # Allow user to define custom manifests in ./manifests/*.yaml
 $(INSTALLER_WORKDIR)/manifests: $(INSTALL_CONFIG_IN_WORKDIR) $(INSTALLER_BIN) $(SNO_DIR)/manifests
@@ -139,6 +139,7 @@ $(INSTALLER_WORKDIR)/manifests: $(INSTALL_CONFIG_IN_WORKDIR) $(INSTALLER_BIN) $(
 	$(SNO_DIR)/manifests.sh 
 	@echo Copying user manifests...
 	$(shell echo 'cp -v $(SNO_DIR)/manifests/*.yaml $(INSTALLER_WORKDIR)/manifests/ || true')
+	$(shell echo 'cp -v $(SNO_DIR)/manifests/*.yml $(INSTALLER_WORKDIR)/manifests/ || true')
 
 # Use the openshift-installer to generate BiP Live ISO ignition file
 $(BIP_LIVE_ISO_IGNITION): $(INSTALLER_WORKDIR)/manifests
