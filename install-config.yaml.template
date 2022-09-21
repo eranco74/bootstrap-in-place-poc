@@ -21,7 +21,7 @@ networking:
     hostPrefix: 23
   machineNetwork:
   - cidr: MACHINE_NETWORK
-  networkType: OpenShiftSDN
+  networkType: OVNKubernetes
   serviceNetwork:
   - CLUSTER_SVC_NETWORK
 platform:
