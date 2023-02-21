@@ -1,0 +1,25 @@
+<network>
+  <name>REPLACE_NET_NAME</name>
+  <uuid>a29bce40-ce15-43c8-9142-fd0a3cc37f9b</uuid>
+  <forward mode='nat'/>
+  <bridge name='tt2' stp='on' delay='0'/>
+  <mtu size='1500'/>
+  <mac address='52:54:00:e0:8d:ff'/>
+  <domain name='image-based-cluster.redhat.com' localOnly='yes'/>
+  <dns enable='yes'>
+    <host ip='192.168.128.10'>
+      <hostname>api.image-based-cluster.redhat.com</hostname>
+      <hostname>api-int.image-based-cluster.redhat.com</hostname>
+      <hostname>console-openshift-console.apps.image-based-cluster.redhat.com</hostname>
+      <hostname>oauth-openshift.apps.image-based-cluster.redhat.com</hostname>
+      <hostname>canary-openshift-ingress-canary.apps.image-based-cluster.redhat.com</hostname>
+    </host>
+  </dns>
+  <ip family='ipv4' address='192.168.128.1' prefix='24'>
+    <dhcp>
+      <range start='192.168.128.2' end='192.168.128.254'/>
+      <host mac='52:54:00:ee:42:f2' name='master2' ip='REPLACE_HOST_IP'/>
+    </dhcp>
+  </ip>
+</network>
+

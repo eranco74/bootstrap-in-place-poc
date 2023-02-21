@@ -1,0 +1,88 @@
+# Disable built-in rules
+MAKEFLAGS += --no-builtin-rules
+
+IMAGE_BASED_DIR = .
+SNO_DIR = .
+
+########################
+
+LIBVIRT_IMAGE_PATH = /var/lib/libvirt/images
+BASE_IMAGE_PATH_SNO = $(LIBVIRT_IMAGE_PATH)/sno-test.qcow2
+IMAGE_PATH_SNO_IN_LIBVIRT = $(LIBVIRT_IMAGE_PATH)/installer-SNO-image.qcow2
+
+MACHINE_NETWORK ?= 192.168.128.0/24
+
+NET_CONFIG_TEMPLATE = $(IMAGE_BASED_DIR)/net-2.xml.template
+NET_CONFIG = $(IMAGE_BASED_DIR)/net.xml
+
+NET_NAME = test-net-2
+VM_NAME = sno-test-2
+VOL_NAME = $(VM_NAME).qcow2
+
+SSH_KEY_DIR = $(IMAGE_BASED_DIR)/ssh-key
+SSH_KEY_PUB_PATH = $(SSH_KEY_DIR)/key.pub
+SSH_KEY_PRIV_PATH = $(SSH_KEY_DIR)/key
+
+SSH_FLAGS = -o IdentityFile=$(SSH_KEY_PRIV_PATH) \
+ 			-o UserKnownHostsFile=/dev/null \
+ 			-o StrictHostKeyChecking=no
+
+HOST_IP = 192.168.128.10
+SSH_HOST = core@$(HOST_IP)
+
+$(SSH_KEY_DIR):
+	@echo Creating SSH key dir
+	mkdir $@
+
+$(SSH_KEY_PRIV_PATH): $(SSH_KEY_DIR)
+	@echo "No private key $@ found, generating a private-public pair"
+	# -N "" means no password
+	ssh-keygen -f $@ -N ""
+	chmod 400 $@
+
+$(SSH_KEY_PUB_PATH): $(SSH_KEY_PRIV_PATH)
+
+.PHONY: gather checkenv clean destroy-libvirt start-vm network ssh
+
+.SILENT: destroy-libvirt
+
+destroy-libvirt:
+	echo "Destroying previous libvirt resources"
+	NET_NAME=$(NET_NAME) \
+        VM_NAME=$(VM_NAME) \
+        VOL_NAME=$(VOL_NAME) \
+	$(SNO_DIR)/virt-delete-sno.sh || true
+
+# Render the libvirt net config file with the network name and host IP
+$(NET_CONFIG): $(NET_CONFIG_TEMPLATE)
+	sed -e 's/REPLACE_NET_NAME/$(NET_NAME)/' \
+		-e 's/REPLACE_HOST_IP/$(HOST_IP)/' \
+	    $(NET_CONFIG_TEMPLATE) > $@
+
+network: destroy-libvirt $(NET_CONFIG)
+	NET_XML=$(NET_CONFIG) $(SNO_DIR)/virt-create-net.sh
+
+$(IMAGE_PATH_SNO_IN_LIBVIRT): $(BASE_IMAGE_PATH_SNO)
+	sudo cp $< $@
+	sudo chown qemu:qemu $@
+
+# Destroy previously created VMs/Networks and create a VM/Network with an ISO containing the BiP embedded ignition file
+start-vm: $(IMAGE_PATH_SNO_IN_LIBVIRT) network
+	IMAGE=$(IMAGE_PATH_SNO_IN_LIBVIRT) \
+	VM_NAME=$(VM_NAME) \
+	NET_NAME=$(NET_NAME) \
+	$(IMAGE_BASED_DIR)/virt-install-sno-ign.sh
+
+ssh: $(SSH_KEY_PRIV_PATH)
+	ssh $(SSH_FLAGS) $(SSH_HOST)
+
+image-based/bootstrap-in-place-for-live-iso.ign:
+	mkdir image-based
+	cp image-based-install-config.yaml image-based/
+	./bin/openshift-install create single-node-ignition-config --dir image-based/
+	# remove the unsupported append section, it's motd and doesn't really matter for the installation
+	jq 'del(.storage.files[] | select(.append != null))' image-based/bootstrap-in-place-for-live-iso.ign | sponge image-based/bootstrap-in-place-for-live-iso.ign
+
+copy-ignition-to-vm:
+	scp -i ssh-key/key image-based/bootstrap-in-place-for-live-iso.ign  core@192.168.128.10:
+
