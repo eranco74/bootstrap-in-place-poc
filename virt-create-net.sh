@@ -37,6 +37,6 @@ fi
 
 sudo virsh net-create "${NET_XML}"
 
-echo server=/api.test-cluster.redhat.com/192.168.126.1 | sudo tee /etc/NetworkManager/dnsmasq.d/aio.conf
-echo -e "[main]\ndns=dnsmasq" | sudo tee /etc/NetworkManager/conf.d/aio.conf
+echo server=/api.test-cluster.redhat.com/${HOST_IP} | sudo tee /etc/NetworkManager/dnsmasq.d/bip.conf
+echo -e "[main]\ndns=dnsmasq" | sudo tee /etc/NetworkManager/conf.d/bip.conf
 sudo systemctl reload NetworkManager.service

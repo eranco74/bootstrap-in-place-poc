@@ -7,7 +7,7 @@
   <mac address='52:54:00:e0:8d:fe'/>
   <domain name='test-cluster.redhat.com' localOnly='yes'/>
   <dns enable='yes'>
-    <host ip='192.168.126.10'>
+    <host ip='REPLACE_HOST_IP'>
       <hostname>api.test-cluster.redhat.com</hostname>
       <hostname>api-int.test-cluster.redhat.com</hostname>
       <hostname>console-openshift-console.apps.test-cluster.redhat.com</hostname>

@@ -108,7 +108,7 @@ $(NET_CONFIG): $(NET_CONFIG_TEMPLATE)
 	    $(NET_CONFIG_TEMPLATE) > $@
 
 network: destroy-libvirt $(NET_CONFIG)
-	NET_XML=$(NET_CONFIG) $(SNO_DIR)/virt-create-net.sh
+	NET_XML=$(NET_CONFIG) HOST_IP=$(HOST_IP) $(SNO_DIR)/virt-create-net.sh
 
 # Create a working directory for the openshift-installer `--dir` parameter
 $(INSTALLER_WORKDIR):
