@@ -171,7 +171,7 @@ start-iso: $(INSTALLER_ISO_PATH_SNO_IN_LIBVIRT) network
 	$(SNO_DIR)/virt-install-sno-iso-ign.sh
 
 ssh: $(SSH_KEY_PRIV_PATH)
-	ssh $(SSH_FLAGS) $(SSH_HOST)
+	ssh $(SSH_FLAGS) $(SSH_HOST) $(CMD)
 
 dump_ignition:
 	@[ ! -f $(BIP_LIVE_ISO_IGNITION) ] && echo $(BIP_LIVE_ISO_IGNITION) does not exist && exit 1 || true
