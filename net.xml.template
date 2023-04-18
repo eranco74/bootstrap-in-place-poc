@@ -5,14 +5,14 @@
   <bridge name='tt0' stp='on' delay='0'/>
   <mtu size='1500'/>
   <mac address='52:54:00:e0:8d:fe'/>
-  <domain name='test-cluster.redhat.com' localOnly='yes'/>
+  <domain name='CLUSTER_NAME.BASE_DOMAIN' localOnly='yes'/>
   <dns enable='yes'>
     <host ip='REPLACE_HOST_IP'>
-      <hostname>api.test-cluster.redhat.com</hostname>
-      <hostname>api-int.test-cluster.redhat.com</hostname>
-      <hostname>console-openshift-console.apps.test-cluster.redhat.com</hostname>
-      <hostname>oauth-openshift.apps.test-cluster.redhat.com</hostname>
-      <hostname>canary-openshift-ingress-canary.apps.test-cluster.redhat.com</hostname>
+      <hostname>api.CLUSTER_NAME.BASE_DOMAIN</hostname>
+      <hostname>api-int.CLUSTER_NAME.BASE_DOMAIN</hostname>
+      <hostname>console-openshift-console.apps.CLUSTER_NAME.BASE_DOMAIN</hostname>
+      <hostname>oauth-openshift.apps.CLUSTER_NAME.BASE_DOMAIN</hostname>
+      <hostname>canary-openshift-ingress-canary.apps.CLUSTER_NAME.BASE_DOMAIN</hostname>
     </host>
   </dns>
   <ip family='ipv4' address='192.168.126.1' prefix='24'>

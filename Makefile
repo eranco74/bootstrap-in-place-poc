@@ -33,6 +33,8 @@ INSTALLER_ISO_PATH_SNO_IN_LIBVIRT = $(LIBVIRT_ISO_PATH)/installer-SNO-image.iso
 MACHINE_NETWORK ?= 192.168.126.0/24
 CLUSTER_NETWORK ?= 10.128.0.0/14
 CLUSTER_SVC_NETWORK ?= 172.30.0.0/16
+CLUSTER_NAME ?= test-cluster
+BASE_DOMAIN ?= redhat.com
 
 INSTALL_CONFIG_TEMPLATE = $(SNO_DIR)/install-config.yaml.template
 INSTALL_CONFIG = $(SNO_DIR)/install-config.yaml
@@ -87,8 +89,8 @@ clean: destroy-libvirt
 destroy-libvirt:
 	echo "Destroying previous libvirt resources"
 	NET_NAME=$(NET_NAME) \
-        VM_NAME=$(VM_NAME) \
-        VOL_NAME=$(VOL_NAME) \
+	VM_NAME=$(VM_NAME) \
+	VOL_NAME=$(VOL_NAME) \
 	$(SNO_DIR)/virt-delete-sno.sh || true
 
 # Render the install config from the template with the correct pull secret and SSH key
@@ -96,6 +98,8 @@ $(INSTALL_CONFIG): $(INSTALL_CONFIG_TEMPLATE) checkenv $(SSH_KEY_PUB_PATH)
 	sed -e 's/YOUR_PULL_SECRET/$(PULL_SECRET)/' \
 	    -e 's|YOUR_SSH_KEY|$(shell cat $(SSH_KEY_PUB_PATH))|' \
 	    -e 's|INSTALLATION_DISK|$(INSTALLATION_DISK)|' \
+	    -e 's|CLUSTER_NAME|$(CLUSTER_NAME)|' \
+	    -e 's|BASE_DOMAIN|$(BASE_DOMAIN)|' \
 	    -e 's|CLUSTER_NETWORK|$(CLUSTER_NETWORK)|' \
 	    -e 's|MACHINE_NETWORK|$(MACHINE_NETWORK)|' \
 	    -e 's|CLUSTER_SVC_NETWORK|$(CLUSTER_SVC_NETWORK)|' \
@@ -104,11 +108,17 @@ $(INSTALL_CONFIG): $(INSTALL_CONFIG_TEMPLATE) checkenv $(SSH_KEY_PUB_PATH)
 # Render the libvirt net config file with the network name and host IP
 $(NET_CONFIG): $(NET_CONFIG_TEMPLATE)
 	sed -e 's/REPLACE_NET_NAME/$(NET_NAME)/' \
+	    -e 's|CLUSTER_NAME|$(CLUSTER_NAME)|' \
+	    -e 's|BASE_DOMAIN|$(BASE_DOMAIN)|' \
 		-e 's/REPLACE_HOST_IP/$(HOST_IP)/' \
 	    $(NET_CONFIG_TEMPLATE) > $@
 
 network: destroy-libvirt $(NET_CONFIG)
-	NET_XML=$(NET_CONFIG) HOST_IP=$(HOST_IP) $(SNO_DIR)/virt-create-net.sh
+	NET_XML=$(NET_CONFIG) \
+	HOST_IP=$(HOST_IP) \
+	CLUSTER_NAME=$(CLUSTER_NAME) \
+	BASE_DOMAIN=$(BASE_DOMAIN) \
+	$(SNO_DIR)/virt-create-net.sh
 
 # Create a working directory for the openshift-installer `--dir` parameter
 $(INSTALLER_WORKDIR):

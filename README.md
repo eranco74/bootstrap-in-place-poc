@@ -23,6 +23,8 @@ Since the manual mode does not have strong dependencies on any platform (i.e., p
     * `MACHINE_NETWORK` - the machine network CIDR. A good default is `192.168.126.0/24`.
     * `CLUSTER_SVC_NETWORK` - the cluster service network CIDR. A good default is `172.30.0.0/16`.
     * `CLUSTER_NETWORK` - the cluster network CIDR. A good default is `10.128.0.0/14`.
+    * `CLUSTER_NAME` - the cluster name, the default is `test-cluster`.
+    * `BASE_DOMAIN` - the cluster base domain, the default is `redhat.com`.
 - Download the ISO to the workdir `./download_live_iso.sh sno-workdir/base.iso`
 - Get an installer binary using `oc adm release extract --command=openshift-install --to ./bin ${RELEASE_IMAGE}`
 - (optional) If custom manifests are defined, generate manifests with `./manifests.sh` and then copy custom manifests into generated folder. Invocation examples:
