@@ -30,7 +30,7 @@ Since the manual mode does not have strong dependencies on any platform (i.e., p
 - (optional) If custom manifests are defined, generate manifests with `./manifests.sh` and then copy custom manifests into generated folder. Invocation examples:
 ```bash
 INSTALLATION_DISK=/dev/sda \
-RELEASE_IMAGE=quay.io/openshift-release-dev/ocp-release:4.12.2-x86_64 \
+RELEASE_IMAGE=quay.io/openshift-release-dev/ocp-release:4.13.0-x86_64 \
 INSTALLER_BIN=./bin/openshift-install \
 INSTALLER_WORKDIR=./sno-workdir \
 ./manifests.sh
@@ -41,7 +41,7 @@ cp ./manifests/*.yaml $INSTALLER_WORKDIR/manifests/
 - Generate an ignition file using the installer with `./generate.sh`. Invocation example:
 ```bash
 INSTALLATION_DISK=/dev/sda \
-RELEASE_IMAGE=quay.io/openshift-release-dev/ocp-release:4.12.2-x86_64 \
+RELEASE_IMAGE=quay.io/openshift-release-dev/ocp-release:4.13.0-x86_64 \
 INSTALLER_BIN=./bin/openshift-install \
 INSTALLER_WORKDIR=./sno-workdir \
 ./generate.sh
@@ -97,6 +97,6 @@ Automatic mode using Makefiles, currently supports SNO deployments on two virtua
 
 # Other notes
 
-* Default release image is quay.io/openshift-release-dev/ocp-release:4.12.2-x86_64 you can override it using RELEASE_IMAGE env var.
+* Default release image is quay.io/openshift-release-dev/ocp-release:4.13.0-x86_64 you can override it using RELEASE_IMAGE env var.
 * make will execute the generate.sh script with INSTALLATION_DISK=/dev/vda
 * if you’re running the installation on a BM environment, it should be updated.
