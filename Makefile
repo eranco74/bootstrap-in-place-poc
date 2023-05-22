@@ -15,7 +15,7 @@ ifndef PULL_SECRET
 endif
 
 INSTALLATION_DISK ?= /dev/vda
-RELEASE_IMAGE ?= quay.io/openshift-release-dev/ocp-release:4.12.2-x86_64
+RELEASE_IMAGE ?= quay.io/openshift-release-dev/ocp-release:4.13.0-x86_64
 
 
 ########################
