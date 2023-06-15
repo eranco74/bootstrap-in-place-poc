@@ -24,7 +24,7 @@ RAM_MB="${RAM_MB:-16384}"
 DISK_GB="${DISK_GB:-30}"
 CPU_CORE="${CPU_CORE:-6}"
 
-rm nohup.out
+rm -f nohup.out
 nohup virt-install \
     --connect qemu:///system \
     -n "${VM_NAME}" \
@@ -37,6 +37,7 @@ nohup virt-install \
     --events on_reboot=restart \
     --cdrom "${RHCOS_ISO}" \
     --disk pool=default,size="${DISK_GB}" \
+    --check disk_size=off \
     --boot hd,cdrom \
     --noautoconsole \
     --wait=-1 &

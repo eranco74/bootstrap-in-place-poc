@@ -40,6 +40,11 @@ INSTALL_CONFIG_TEMPLATE = $(SNO_DIR)/install-config.yaml.template
 INSTALL_CONFIG = $(SNO_DIR)/install-config.yaml
 INSTALL_CONFIG_IN_WORKDIR = $(INSTALLER_WORKDIR)/install-config.yaml
 
+ABI_ISO_PATH = $(INSTALLER_WORKDIR)/agent.x86_64.iso
+ABI_ISO_PATH_IN_LIBVIRT = $(LIBVIRT_ISO_PATH)/agent.x86_64.iso
+AGENT_CONFIG_IN_WORKDIR = $(INSTALLER_WORKDIR)/agent-config.yaml
+
+
 NET_CONFIG_TEMPLATE = $(SNO_DIR)/net.xml.template
 NET_CONFIG = $(SNO_DIR)/net.xml
 
@@ -178,6 +183,32 @@ start-iso: $(INSTALLER_ISO_PATH_SNO_IN_LIBVIRT) network
 	RHCOS_ISO=$(INSTALLER_ISO_PATH_SNO_IN_LIBVIRT) \
 	VM_NAME=$(VM_NAME) \
 	NET_NAME=$(NET_NAME) \
+	$(SNO_DIR)/virt-install-sno-iso-ign.sh
+
+$(AGENT_CONFIG_IN_WORKDIR): agent-config.yaml $(INSTALLER_WORKDIR)
+	sudo cp $< $@
+
+# Generate an agent based ISO
+$(ABI_ISO_PATH): $(INSTALLER_BIN) $(AGENT_CONFIG_IN_WORKDIR) $(INSTALL_CONFIG_IN_WORKDIR)
+	# openshift-install will not overwrite existing ISOs, so we delete it beforehand
+	rm -f $@
+	RELEASE_IMAGE=$(RELEASE_IMAGE) \
+	INSTALLER_BIN=$(INSTALLER_BIN) \
+	INSTALLER_WORKDIR=$(INSTALLER_WORKDIR) \
+	$(SNO_DIR)/create-abi-image.sh
+
+$(ABI_ISO_PATH_IN_LIBVIRT): $(ABI_ISO_PATH)
+	sudo cp $< $@
+	sudo chown qemu:qemu $@
+
+# Destroy previously created VMs/Networks and create a VM/Network with an ISO containing the BiP embedded ignition file
+# ABI validates minimum disk space and CPU resources so we need to override the default
+start-iso-abi: $(ABI_ISO_PATH_IN_LIBVIRT) network
+	RHCOS_ISO=$(ABI_ISO_PATH_IN_LIBVIRT) \
+	VM_NAME=$(VM_NAME) \
+	NET_NAME=$(NET_NAME) \
+	DISK_GB=130 \
+	CPU_CORE=8 \
 	$(SNO_DIR)/virt-install-sno-iso-ign.sh
 
 ssh: $(SSH_KEY_PRIV_PATH)
