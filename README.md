@@ -95,6 +95,17 @@ Automatic mode using Makefiles, currently supports SNO deployments on two virtua
     - Create a VM in vSphere
     - Boot the VM with that ISO
 
+
+# Install SNO with bootstrap in place using the `Agent Based Installer (ABI)` flow
+- Set PULL_SECRET environment variable to your pull secret
+- `make start-iso-abi` - Spins up a VM with the ABI ISO. This will automatically perform the following actions:
+    - Extract the openshift installer from the release image.
+    - Generate the install-config.yaml.
+    - Execute the openshift-installer `agent create image` command to generate the agent.iso.
+    - Create a libvirt network & VM.
+    - Boot the VM with that ISO.
+- You can now monitor the progress using `make ssh` and `journalctl -f -u assisted-service.service` or `kubectl --kubeconfig ./sno-workdir/auth/kubeconfig get clusterversion`.
+
 # Other notes
 
 * Default release image is quay.io/openshift-release-dev/ocp-release:4.13.0-x86_64 you can override it using RELEASE_IMAGE env var.
