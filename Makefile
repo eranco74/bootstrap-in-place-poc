@@ -49,9 +49,9 @@ NET_CONFIG_TEMPLATE = $(SNO_DIR)/net.xml.template
 NET_CONFIG = $(SNO_DIR)/net.xml
 
 NET_NAME = test-net
-VM_NAME = sno-test
+VM_NAME ?= sno-test
 VOL_NAME = $(VM_NAME).qcow2
-
+POOL ?= default
 SSH_KEY_DIR = $(SNO_DIR)/ssh-key
 SSH_KEY_PUB_PATH = $(SSH_KEY_DIR)/key.pub
 SSH_KEY_PRIV_PATH = $(SSH_KEY_DIR)/key
@@ -96,6 +96,7 @@ destroy-libvirt:
 	NET_NAME=$(NET_NAME) \
 	VM_NAME=$(VM_NAME) \
 	VOL_NAME=$(VOL_NAME) \
+	POOL=$(POOL) \
 	$(SNO_DIR)/virt-delete-sno.sh || true
 
 # Render the install config from the template with the correct pull secret and SSH key
@@ -183,6 +184,7 @@ start-iso: $(INSTALLER_ISO_PATH_SNO_IN_LIBVIRT) network
 	RHCOS_ISO=$(INSTALLER_ISO_PATH_SNO_IN_LIBVIRT) \
 	VM_NAME=$(VM_NAME) \
 	NET_NAME=$(NET_NAME) \
+	POOL=$(POOL) \
 	$(SNO_DIR)/virt-install-sno-iso-ign.sh
 
 $(AGENT_CONFIG_IN_WORKDIR): agent-config.yaml $(INSTALLER_WORKDIR)
