@@ -19,6 +19,8 @@ if [ -z ${NET_NAME+x} ]; then
 	exit 1
 fi
 
+export POOL="${POOL:-default}"
+
 OS_VARIANT="rhel8.1"
 RAM_MB="${RAM_MB:-16384}"
 DISK_GB="${DISK_GB:-30}"
@@ -36,7 +38,7 @@ nohup virt-install \
     --graphics=none \
     --events on_reboot=restart \
     --cdrom "${RHCOS_ISO}" \
-    --disk pool=default,size="${DISK_GB}" \
+    --disk pool="${POOL}",size="${DISK_GB}" \
     --check disk_size=off \
     --boot hd,cdrom \
     --noautoconsole \
