@@ -194,6 +194,10 @@ $(AGENT_CONFIG_IN_WORKDIR): agent-config.yaml $(INSTALLER_WORKDIR)
 $(ABI_ISO_PATH): $(INSTALLER_BIN) $(AGENT_CONFIG_IN_WORKDIR) $(INSTALL_CONFIG_IN_WORKDIR)
 	# openshift-install will not overwrite existing ISOs, so we delete it beforehand
 	rm -f $@
+	@echo Copying user manifests...
+	mkdir -p $(INSTALLER_WORKDIR)/openshift/
+	$(shell echo 'cp -v $(SNO_DIR)/manifests/*.yaml $(INSTALLER_WORKDIR)/openshift/ || true')
+	$(shell echo 'cp -v $(SNO_DIR)/manifests/*.yml $(INSTALLER_WORKDIR)/openshift/ || true')
 	RELEASE_IMAGE=$(RELEASE_IMAGE) \
 	INSTALLER_BIN=$(INSTALLER_BIN) \
 	INSTALLER_WORKDIR=$(INSTALLER_WORKDIR) \
