@@ -35,6 +35,8 @@ CLUSTER_NETWORK ?= 10.128.0.0/14
 CLUSTER_SVC_NETWORK ?= 172.30.0.0/16
 CLUSTER_NAME ?= test-cluster
 BASE_DOMAIN ?= redhat.com
+RAM_MB ?= 16384
+CPU_CORE ?= 8
 
 INSTALL_CONFIG_TEMPLATE = $(SNO_DIR)/install-config.yaml.template
 INSTALL_CONFIG = $(SNO_DIR)/install-config.yaml
@@ -214,7 +216,8 @@ start-iso-abi: $(ABI_ISO_PATH_IN_LIBVIRT) network
 	VM_NAME=$(VM_NAME) \
 	NET_NAME=$(NET_NAME) \
 	DISK_GB=130 \
-	CPU_CORE=8 \
+	CPU_CORE=$(CPU_CORE) \
+	RAM_MB=$(RAM_MB) \
 	$(SNO_DIR)/virt-install-sno-iso-ign.sh
 
 ssh: $(SSH_KEY_PRIV_PATH)
