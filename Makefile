@@ -103,7 +103,7 @@ destroy-libvirt:
 
 # Render the install config from the template with the correct pull secret and SSH key
 $(INSTALL_CONFIG): $(INSTALL_CONFIG_TEMPLATE) checkenv $(SSH_KEY_PUB_PATH)
-	sed -e 's/YOUR_PULL_SECRET/$(PULL_SECRET)/' \
+	sed -e 's|YOUR_PULL_SECRET|$(PULL_SECRET)|' \
 	    -e 's|YOUR_SSH_KEY|$(shell cat $(SSH_KEY_PUB_PATH))|' \
 	    -e 's|INSTALLATION_DISK|$(INSTALLATION_DISK)|' \
 	    -e 's|CLUSTER_NAME|$(CLUSTER_NAME)|' \
