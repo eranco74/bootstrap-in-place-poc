@@ -77,7 +77,7 @@ $(SSH_KEY_PRIV_PATH): $(SSH_KEY_DIR)
 
 $(SSH_KEY_PUB_PATH): $(SSH_KEY_PRIV_PATH)
 
-.PHONY: gather checkenv clean destroy-libvirt start-iso network ssh
+.PHONY: gather checkenv clean destroy-libvirt start-iso network ssh $(NET_CONFIG)
 
 # $(INSTALL_CONFIG) is also PHONY to force the makefile to regenerate it with new env vars
 .PHONY: $(INSTALL_CONFIG)
@@ -91,6 +91,7 @@ $(SSH_KEY_PUB_PATH): $(SSH_KEY_PRIV_PATH)
 clean: destroy-libvirt
 	rm -rf $(INSTALLER_WORKDIR)
 	rm -rf registry-config.json
+	rm -rf $(NET_CONFIG)
 	$(SNO_DIR)/bm-dell-clean.sh || true
 
 destroy-libvirt:
