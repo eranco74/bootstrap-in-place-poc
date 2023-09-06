@@ -1,6 +1,6 @@
 #!/bin/bash
 # Create a libvirt virtual network called 'test-net' configured
-# to assign master1.test-cluster.redhat.com/192.168.126.10 to
+# to assign sno1.test-cluster.redhat.com/192.168.126.10 to
 # DHCP requests from 52:54:00:ee:42:e1
 # libvirt will also configure dnsmasq (listening on 192.168.126.1)
 # to respond to DNS queries for several hosts under

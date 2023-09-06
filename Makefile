@@ -51,7 +51,7 @@ NET_CONFIG_TEMPLATE = $(SNO_DIR)/net.xml.template
 NET_CONFIG = $(SNO_DIR)/net.xml
 
 NET_NAME = test-net
-VM_NAME ?= sno-test
+VM_NAME ?= sno1
 VOL_NAME = $(VM_NAME).qcow2
 POOL ?= default
 SSH_KEY_DIR = $(SNO_DIR)/ssh-key
