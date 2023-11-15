@@ -14,6 +14,7 @@
 /.openshift_install_state.json
 /registry-config.json
 /sno-workdir
+/workdir-*
 /ssh-key/
 /.idea/
 /terraform/*/.terraform/

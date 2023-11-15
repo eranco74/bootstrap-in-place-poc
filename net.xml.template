@@ -18,7 +18,7 @@
   <ip family='ipv4' address='192.168.126.1' prefix='24'>
     <dhcp>
       <range start='192.168.126.2' end='192.168.126.254'/>
-      <host mac='52:54:00:ee:42:e1' name='sno1' ip='REPLACE_HOST_IP'/>
+      <host mac='REPLACE_HOST_MAC' name='REPLACE_HOST_NAME' ip='REPLACE_HOST_IP'/>
     </dhcp>
   </ip>
 </network>

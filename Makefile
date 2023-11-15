@@ -15,12 +15,14 @@ ifndef PULL_SECRET
 endif
 
 INSTALLATION_DISK ?= /dev/vda
-RELEASE_IMAGE ?= quay.io/openshift-release-dev/ocp-release:4.13.5-x86_64
+RELEASE_VERSION ?= 4.13.5
+RELEASE_ARCH ?= x86_64
+RELEASE_IMAGE ?= quay.io/openshift-release-dev/ocp-release:$(RELEASE_VERSION)-$(RELEASE_ARCH)
 
 
 ########################
 
-INSTALLER_WORKDIR = sno-workdir
+INSTALLER_WORKDIR ?= sno-workdir
 INSTALLER_BIN = bin/openshift-install
 LIVE_ISO_IGNITION_NAME = bootstrap-in-place-for-live-iso.ign
 BIP_LIVE_ISO_IGNITION = $(INSTALLER_WORKDIR)/$(LIVE_ISO_IGNITION_NAME)
@@ -62,7 +64,8 @@ SSH_FLAGS = -o IdentityFile=$(SSH_KEY_PRIV_PATH) \
  			-o UserKnownHostsFile=/dev/null \
  			-o StrictHostKeyChecking=no
 
-HOST_IP = 192.168.126.10
+HOST_IP ?= 192.168.126.10
+HOST_MAC ?= 52:54:00:ee:42:e1
 SSH_HOST = core@$(HOST_IP)
 
 $(SSH_KEY_DIR):
@@ -119,6 +122,8 @@ $(NET_CONFIG): $(NET_CONFIG_TEMPLATE)
 	sed -e 's/REPLACE_NET_NAME/$(NET_NAME)/' \
 	    -e 's|CLUSTER_NAME|$(CLUSTER_NAME)|' \
 	    -e 's|BASE_DOMAIN|$(BASE_DOMAIN)|' \
+		-e 's/REPLACE_HOST_NAME/$(VM_NAME)/' \
+		-e 's/REPLACE_HOST_MAC/$(HOST_MAC)/' \
 		-e 's/REPLACE_HOST_IP/$(HOST_IP)/' \
 	    $(NET_CONFIG_TEMPLATE) > $@
 
@@ -187,6 +192,7 @@ start-iso: $(INSTALLER_ISO_PATH_SNO_IN_LIBVIRT) network
 	RHCOS_ISO=$(INSTALLER_ISO_PATH_SNO_IN_LIBVIRT) \
 	VM_NAME=$(VM_NAME) \
 	NET_NAME=$(NET_NAME) \
+	HOST_MAC=$(HOST_MAC) \
 	POOL=$(POOL) \
 	$(SNO_DIR)/virt-install-sno-iso-ign.sh
 
@@ -218,6 +224,7 @@ start-iso-abi: $(ABI_ISO_PATH_IN_LIBVIRT) network
 	NET_NAME=$(NET_NAME) \
 	DISK_GB=130 \
 	CPU_CORE=$(CPU_CORE) \
+	HOST_MAC=$(HOST_MAC) \
 	RAM_MB=$(RAM_MB) \
 	$(SNO_DIR)/virt-install-sno-iso-ign.sh
 

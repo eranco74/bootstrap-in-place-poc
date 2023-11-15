@@ -34,7 +34,7 @@ nohup virt-install \
     --vcpus "${CPU_CORE}" \
     --os-variant="${OS_VARIANT}" \
     --import \
-    --network=network:"${NET_NAME}",mac=52:54:00:ee:42:e1 \
+    --network=network:"${NET_NAME}",mac="${HOST_MAC}" \
     --graphics=none \
     --events on_reboot=restart \
     --cdrom "${RHCOS_ISO}" \
