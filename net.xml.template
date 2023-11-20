@@ -1,6 +1,6 @@
 <network>
   <name>REPLACE_NET_NAME</name>
-  <uuid>a29bce40-ce15-43c8-9142-fd0a3cc37f9a</uuid>
+  <uuid>REPLACE_NET_UUID</uuid>
   <forward mode='nat'/>
   <bridge name='tt0' stp='on' delay='0'/>
   <mtu size='1500'/>

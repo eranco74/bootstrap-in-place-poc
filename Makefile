@@ -52,7 +52,8 @@ AGENT_CONFIG_IN_WORKDIR = $(INSTALLER_WORKDIR)/agent-config.yaml
 NET_CONFIG_TEMPLATE = $(SNO_DIR)/net.xml.template
 NET_CONFIG = $(SNO_DIR)/net.xml
 
-NET_NAME = test-net
+NET_NAME ?= test-net
+NET_UUID ?= a29bce40-ce15-43c8-9142-fd0a3cc37f9a
 VM_NAME ?= sno1
 VOL_NAME = $(VM_NAME).qcow2
 POOL ?= default
@@ -97,13 +98,21 @@ clean: destroy-libvirt
 	rm -rf $(NET_CONFIG)
 	$(SNO_DIR)/bm-dell-clean.sh || true
 
-destroy-libvirt:
-	echo "Destroying previous libvirt resources"
-	NET_NAME=$(NET_NAME) \
+destroy-libvirt: destroy-libvirt-sno destroy-libvirt-net
+
+.PHONY: destroy-libvirt-sno
+destroy-libvirt-sno:
+	@echo "Destroying previous VM libvirt resources"
 	VM_NAME=$(VM_NAME) \
 	VOL_NAME=$(VOL_NAME) \
 	POOL=$(POOL) \
 	$(SNO_DIR)/virt-delete-sno.sh || true
+
+.PHONY: destroy-libvirt-net
+destroy-libvirt-net:
+	@echo "Destroying previous network libvirt resources"
+	NET_NAME=$(NET_NAME) \
+	$(SNO_DIR)/virt-delete-net.sh || true
 
 # Render the install config from the template with the correct pull secret and SSH key
 $(INSTALL_CONFIG): $(INSTALL_CONFIG_TEMPLATE) checkenv $(SSH_KEY_PUB_PATH)
@@ -120,6 +129,7 @@ $(INSTALL_CONFIG): $(INSTALL_CONFIG_TEMPLATE) checkenv $(SSH_KEY_PUB_PATH)
 # Render the libvirt net config file with the network name and host IP
 $(NET_CONFIG): $(NET_CONFIG_TEMPLATE)
 	sed -e 's/REPLACE_NET_NAME/$(NET_NAME)/' \
+	    -e 's|REPLACE_NET_UUID|$(NET_UUID)|' \
 	    -e 's|CLUSTER_NAME|$(CLUSTER_NAME)|' \
 	    -e 's|BASE_DOMAIN|$(BASE_DOMAIN)|' \
 		-e 's/REPLACE_HOST_NAME/$(VM_NAME)/' \
@@ -127,7 +137,9 @@ $(NET_CONFIG): $(NET_CONFIG_TEMPLATE)
 		-e 's/REPLACE_HOST_IP/$(HOST_IP)/' \
 	    $(NET_CONFIG_TEMPLATE) > $@
 
-network: destroy-libvirt $(NET_CONFIG)
+network: $(NET_CONFIG)
+	NET_NAME=$(NET_NAME) \
+	NET_UUID=$(NET_UUID) \
 	NET_XML=$(NET_CONFIG) \
 	HOST_IP=$(HOST_IP) \
 	CLUSTER_NAME=$(CLUSTER_NAME) \
@@ -154,7 +166,7 @@ $(INSTALLER_BIN): registry-config.json
 
 .PHONY: registry-config.json
 registry-config.json:
-	jq -n -c '$(PULL_SECRET)' > registry-config.json
+	@jq -n -c '$(PULL_SECRET)' > registry-config.json
 
 # Allow user to define custom manifests in ./manifests/*.yaml
 $(INSTALLER_WORKDIR)/manifests: $(INSTALL_CONFIG_IN_WORKDIR) $(INSTALLER_BIN) $(SNO_DIR)/manifests
@@ -216,9 +228,9 @@ $(ABI_ISO_PATH_IN_LIBVIRT): $(ABI_ISO_PATH)
 	sudo cp $< $@
 	sudo chown qemu:qemu $@
 
-# Destroy previously created VMs/Networks and create a VM/Network with an ISO containing the BiP embedded ignition file
+# Destroy previously created VMs and create a VM/Network with an ISO containing the BiP embedded ignition file
 # ABI validates minimum disk space and CPU resources so we need to override the default
-start-iso-abi: $(ABI_ISO_PATH_IN_LIBVIRT) network
+start-iso-abi: $(ABI_ISO_PATH_IN_LIBVIRT) network destroy-libvirt-sno host-net-config
 	RHCOS_ISO=$(ABI_ISO_PATH_IN_LIBVIRT) \
 	VM_NAME=$(VM_NAME) \
 	NET_NAME=$(NET_NAME) \
@@ -227,6 +239,17 @@ start-iso-abi: $(ABI_ISO_PATH_IN_LIBVIRT) network
 	HOST_MAC=$(HOST_MAC) \
 	RAM_MB=$(RAM_MB) \
 	$(SNO_DIR)/virt-install-sno-iso-ign.sh
+
+# Configure dhcp and dns for host
+.PHONY: host-net-config
+host-net-config:
+	HOST_IP=$(HOST_IP) \
+	CLUSTER_NAME=$(CLUSTER_NAME) \
+	BASE_DOMAIN=$(BASE_DOMAIN) \
+	NET_NAME=$(NET_NAME) \
+	HOST_NAME=$(VM_NAME) \
+	HOST_MAC=$(HOST_MAC) \
+	$(SNO_DIR)/host-net-config.sh
 
 ssh: $(SSH_KEY_PRIV_PATH)
 	ssh $(SSH_FLAGS) $(SSH_HOST) $(CMD)
