@@ -31,12 +31,14 @@ if [ -t 1 ]; then
 fi
 
 if [ -z ${NET_XML+x} ]; then
-	echo "Please set NET_XML"
-	exit 1
+    echo "Please set NET_XML"
+    exit 1
 fi
 
-sudo virsh net-create "${NET_XML}"
+# Only create network if it does not exist
+if ! sudo virsh net-dumpxml $NET_NAME | grep -q "<uuid>$NET_UUID</uuid>"; then
+    sudo virsh net-create "${NET_XML}"
+fi
 
-echo address=/api.${CLUSTER_NAME}.${BASE_DOMAIN}/${HOST_IP} | sudo tee /etc/NetworkManager/dnsmasq.d/bip.conf
 echo -e "[main]\ndns=dnsmasq" | sudo tee /etc/NetworkManager/conf.d/bip.conf
 sudo systemctl reload NetworkManager.service
