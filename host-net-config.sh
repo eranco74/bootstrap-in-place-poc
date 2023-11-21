@@ -16,6 +16,6 @@ sudo virsh net-update $NET_NAME $action ip-dhcp-host '<host mac="'$HOST_MAC'" na
 
 # Update dnsmasq configuration
 grep -vx address=/api.${CLUSTER_NAME}.${BASE_DOMAIN}/${HOST_IP} /etc/NetworkManager/dnsmasq.d/bip.conf > $tmpfile
-echo address=/api.${CLUSTER_NAME}.${BASE_DOMAIN}/${HOST_IP} > $tmpfile
+echo address=/api.${CLUSTER_NAME}.${BASE_DOMAIN}/${HOST_IP} >> $tmpfile
 cat $tmpfile | sudo tee /etc/NetworkManager/dnsmasq.d/bip.conf
 sudo systemctl reload NetworkManager.service
