@@ -1,3 +1,11 @@
+# Official fork created
+
+Prefer contributions over in the official fork under the rh-ecosystem-edge organization:
+
+https://github.com/rh-ecosystem-edge/bip-orchestrate-vm
+
+# !!!!!!!!!!!!!!!
+
 See https://github.com/openshift/enhancements/pull/565
 
 Note that this repo is just a proof-of-concept. This repo is for debugging / experimenting with
