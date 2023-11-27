@@ -37,7 +37,9 @@ fi
 
 # Only create network if it does not exist
 if ! sudo virsh net-dumpxml $NET_NAME | grep -q "<uuid>$NET_UUID</uuid>"; then
-    sudo virsh net-create "${NET_XML}"
+    sudo virsh net-define "${NET_XML}"
+    sudo virsh net-autostart $NET_NAME
+    sudo virsh net-start $NET_NAME
 fi
 
 echo -e "[main]\ndns=dnsmasq" | sudo tee /etc/NetworkManager/conf.d/bip.conf
